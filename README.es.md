@@ -27,7 +27,7 @@ da al CLI el que toca cuando haces clic.
 
 ## Requisitos
 
-- macOS 13 Ventura o posterior.
+- macOS 13 Ventura o posterior, con Apple Silicon o Intel.
 - El [CLI de Supabase](https://supabase.com/docs/guides/local-development/cli/getting-started)
   instalado con Homebrew o en el `PATH` del shell. Probado con la 2.114.
 - Para compilar: Swift 5.9 o posterior; bastan las Command Line Tools

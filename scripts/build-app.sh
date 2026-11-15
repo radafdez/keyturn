@@ -22,14 +22,30 @@ version="$(sed -n 's/.*switchVersion = "\(.*\)".*/\1/p' Sources/SwitchCore/Versi
 name="Supabase Switch"
 bundle="dist/$name.app"
 
-swift build -c release
-bin="$(swift build -c release --show-bin-path)"
+# Universal binary (Apple Silicon and Intel): one build per architecture,
+# joined with lipo. Both `--arch` in one build need Xcode on older Swift, and
+# newer Swift puts every architecture in the same folder, so each result is
+# copied out before the next build.
+# Binario universal (Apple Silicon e Intel): una compilación por arquitectura,
+# unidas con lipo. Con Swift antiguo, las dos `--arch` a la vez necesitan Xcode,
+# y el Swift nuevo deja todas las arquitecturas en la misma carpeta: por eso se
+# copia cada resultado antes de la siguiente.
+slices=".build/slices"
+rm -rf "$slices"
+for architecture in arm64 x86_64; do
+  swift build -c release --arch "$architecture"
+  bin="$(swift build -c release --arch "$architecture" --show-bin-path)"
+  mkdir -p "$slices/$architecture"
+  cp "$bin/SupabaseSwitch" "$bin/sbswitch" "$slices/$architecture/"
+done
 
 rm -rf "$bundle"
 mkdir -p "$bundle/Contents/MacOS"
-cp "$bin/SupabaseSwitch" "$bundle/Contents/MacOS/SupabaseSwitch"
-cp "$bin/sbswitch" "$bundle/Contents/MacOS/sbswitch"
-cp "$bin/sbswitch" dist/sbswitch
+for product in SupabaseSwitch sbswitch; do
+  lipo -create "$slices/arm64/$product" "$slices/x86_64/$product" \
+    -output "$bundle/Contents/MacOS/$product"
+done
+cp "$bundle/Contents/MacOS/sbswitch" dist/sbswitch
 
 cat > "$bundle/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>

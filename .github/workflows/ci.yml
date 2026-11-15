@@ -10,15 +10,30 @@ permissions:
 
 jobs:
   build-and-test:
-    runs-on: macos-15
+    # Apple Silicon and Intel: the tests run natively on each, and each runs
+    # the universal sbswitch on its own architecture.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, macos-15-intel]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
       - name: Toolchain
-        run: swift --version
+        run: |
+          uname -m
+          swift --version
       - name: Test
         run: ./scripts/test.sh
       - name: Build the app
         run: ./scripts/build-app.sh
+      - name: Check the binaries are universal
+        run: |
+          for binary in dist/sbswitch "dist/Supabase Switch.app/Contents/MacOS/SupabaseSwitch" "dist/Supabase Switch.app/Contents/MacOS/sbswitch"; do
+            echo "$(lipo -archs "$binary")  $binary"
+            lipo "$binary" -verify_arch arm64
+            lipo "$binary" -verify_arch x86_64
+          done
       - name: Smoke test sbswitch
         run: |
           dist/sbswitch version

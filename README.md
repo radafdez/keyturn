@@ -27,7 +27,7 @@ hands the right one to the CLI when you click.
 
 ## Requirements
 
-- macOS 13 Ventura or later.
+- macOS 13 Ventura or later, on Apple Silicon or Intel.
 - The [Supabase CLI](https://supabase.com/docs/guides/local-development/cli/getting-started)
   installed with Homebrew (`/opt/homebrew/bin` or `/usr/local/bin`) or anywhere
   on your login shell's `PATH`. Tested with CLI 2.114.

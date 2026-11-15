@@ -6,6 +6,14 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-15
+
+### Fixed
+
+- The app and `sbswitch` are universal binaries: they now run on Intel Macs
+  too (1.1.0 was Apple Silicon only).
+- `scripts/test.sh` runs the tests on Macs with Xcode installed.
+
 ## [1.1.0] - 2026-11-15
 
 First public release.

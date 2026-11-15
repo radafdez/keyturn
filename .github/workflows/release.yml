@@ -22,6 +22,12 @@ jobs:
         run: ./scripts/test.sh
       - name: Build
         run: ./scripts/build-app.sh
+      - name: Check the binaries are universal
+        run: |
+          for binary in dist/sbswitch "dist/Supabase Switch.app/Contents/MacOS/SupabaseSwitch" "dist/Supabase Switch.app/Contents/MacOS/sbswitch"; do
+            lipo "$binary" -verify_arch arm64
+            lipo "$binary" -verify_arch x86_64
+          done
       - name: Package
         run: |
           version="${GITHUB_REF_NAME#v}"
