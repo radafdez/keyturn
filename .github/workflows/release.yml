@@ -13,7 +13,7 @@ jobs:
   release:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Check the tag matches the version
         run: |
           version=$(sed -n 's/.*switchVersion = "\(.*\)".*/\1/p' Sources/SwitchCore/Version.swift)

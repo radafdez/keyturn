@@ -12,4 +12,4 @@ if [ -d "$plugins" ]; then
   flags=(-Xswiftc -plugin-path -Xswiftc "$plugins")
 fi
 
-exec swift test "${flags[@]}" "$@"
+exec swift test ${flags[@]+"${flags[@]}"} "$@"
