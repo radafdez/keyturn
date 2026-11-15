@@ -26,9 +26,22 @@ jobs:
         run: |
           version="${GITHUB_REF_NAME#v}"
           ditto -c -k --keepParent "dist/Supabase Switch.app" "Supabase-Switch-$version.zip"
-          ditto -c -k dist/sbswitch "sbswitch-$version.zip"
+          ditto -c -k --norsrc --noextattr dist/sbswitch "sbswitch-$version.zip"
           shasum -a 256 *.zip > SHA256SUMS.txt
+          # The notes are this version's section of CHANGELOG.md.
+          awk -v v="$version" '$0 ~ "^## \\[" v "\\]" {on=1; next} /^## \[/ {on=0} on' CHANGELOG.md > NOTES.md
+          test -s NOTES.md || { echo "CHANGELOG.md has no section for $version"; exit 1; }
+          cat >> NOTES.md <<'NOTE'
+
+          ### Install
+
+          Unzip `Supabase-Switch-*.zip` and move the app to `/Applications`. The build
+          is **not notarized**: the first launch is blocked until you click **Open
+          Anyway** in System Settings → Privacy & Security. Or build from source — see
+          the [README](https://github.com/radafdez/supabase-switch#install).
+          NOTE
+          sed -i '' 's/^          //' NOTES.md
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" --generate-notes *.zip SHA256SUMS.txt
+        run: gh release create "$GITHUB_REF_NAME" --title "Supabase Switch ${GITHUB_REF_NAME#v}" --notes-file NOTES.md *.zip SHA256SUMS.txt
