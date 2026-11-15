@@ -127,7 +127,7 @@ import Testing
         var state = SwitchState()
         let id = UUID()
         for second in 0..<(UsageEvent.limit + 5) {
-            state.record(.switched, for: id, at: Date(timeIntervalSince1970: Double(second)))
+            state.record(.switched, for: id, at: Date(timeIntervalSince1970: Double(second)), origin: .menu)
         }
         #expect(state.history.count == UsageEvent.limit)
         #expect(state.history.first?.date == Date(timeIntervalSince1970: 5))
@@ -172,7 +172,7 @@ import Testing
         defer { try? FileManager.default.removeItem(at: directory) }
         let store = FileStateStore(url: directory.appendingPathComponent("accounts.json"))
         var state = SwitchState()
-        state.record(.switched, for: UUID(), at: Date(timeIntervalSince1970: 1_800_000_000))
+        state.record(.switched, for: UUID(), at: Date(timeIntervalSince1970: 1_800_000_000), origin: .menu)
 
         try store.save(state)
 

@@ -54,7 +54,8 @@ public final class SwitchService: @unchecked Sendable {
         Snapshot(
             accounts: state.accounts,
             session: session,
-            usage: UsageSummary(accounts: state.accounts, events: state.history, now: now())
+            usage: UsageSummary(accounts: state.accounts, events: state.history, now: now()),
+            agentsCanSwitch: state.agentsCanSwitch
         )
     }
 
@@ -189,10 +190,11 @@ public final class SwitchService: @unchecked Sendable {
     /// a una sesión que funciona. Tras el login se le pregunta al CLI quién es:
     /// un login que no entró nunca se da por hecho.
     @discardableResult
-    public func activate(_ id: UUID) throws -> Snapshot {
+    public func activate(_ id: UUID, origin: Origin = .menu) throws -> Snapshot {
         try locked {
             var state = try store.load()
             guard let account = state.accounts.first(where: { $0.id == id }) else { throw SwitchError.unknownAccount }
+            if origin.source == .agent, !state.agentsCanSwitch { throw SwitchError.agentsNotAllowed }
             guard let token = try secrets.read(.stored(id)) else { throw SwitchError.missingToken(account.name) }
 
             let owned = try cli.organizations(token: token).map(\.id)
@@ -217,9 +219,31 @@ public final class SwitchService: @unchecked Sendable {
 
             state.activeAccountID = id
             state.sessionStamp = secrets.modificationStamp(.supabaseCLI)
-            state.record(.switched, for: id, at: wholeSecond())
+            state.record(.switched, for: id, at: wholeSecond(), origin: origin)
             try store.save(state)
             return makeSnapshot(state, session: .account(id))
+        }
+    }
+
+    /// Leaves the CLI able to work on one project: switches to the account
+    /// that owns it, or does nothing when the CLI is already there.
+    /// Deja el CLI listo para trabajar en un proyecto: cambia a la cuenta dueña,
+    /// o no hace nada si el CLI ya está en ella.
+    public func useProject(_ query: String, origin: Origin) throws -> ProjectUse {
+        let before = try snapshot()
+        let found = try Self.resolveProject(query, in: before.accounts)
+        if before.activeAccount?.id == found.account.id {
+            return ProjectUse(account: found.account, project: found.project, switched: false)
+        }
+        try activate(found.account.id, origin: origin)
+        return ProjectUse(account: found.account, project: found.project, switched: true)
+    }
+
+    public func setAgentsCanSwitch(_ allowed: Bool) throws {
+        try locked {
+            var state = try store.load()
+            state.agentsCanSwitch = allowed
+            try store.save(state)
         }
     }
 
@@ -227,12 +251,12 @@ public final class SwitchService: @unchecked Sendable {
     /// account without changing who the CLI is logged in as. Counted as a run.
     /// El token guardado de una cuenta, para lanzar una sola orden con ella sin
     /// cambiar la sesión del CLI. Cuenta como una orden lanzada.
-    public func tokenForRun(_ id: UUID) throws -> String {
+    public func tokenForRun(_ id: UUID, origin: Origin = .terminal) throws -> String {
         try locked {
             var state = try store.load()
             guard let account = state.accounts.first(where: { $0.id == id }) else { throw SwitchError.unknownAccount }
             guard let token = try secrets.read(.stored(id)) else { throw SwitchError.missingToken(account.name) }
-            state.record(.ran, for: id, at: wholeSecond())
+            state.record(.ran, for: id, at: wholeSecond(), origin: origin)
             try store.save(state)
             return token
         }

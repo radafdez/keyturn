@@ -60,12 +60,16 @@ public struct SwitchState: Codable, Equatable, Sendable {
     /// `activeAccountID`. Si cambia, alguien inició sesión fuera de la app.
     public var sessionStamp: String?
     public var history: [UsageEvent]
+    /// Whether `sbswitch mcp` may change the CLI's login. Reading is always allowed.
+    /// Si `sbswitch mcp` puede cambiar la sesión del CLI. Consultar siempre se puede.
+    public var agentsCanSwitch: Bool
 
-    public init(accounts: [Account] = [], activeAccountID: UUID? = nil, sessionStamp: String? = nil, history: [UsageEvent] = []) {
+    public init(accounts: [Account] = [], activeAccountID: UUID? = nil, sessionStamp: String? = nil, history: [UsageEvent] = [], agentsCanSwitch: Bool = true) {
         self.accounts = accounts
         self.activeAccountID = activeAccountID
         self.sessionStamp = sessionStamp
         self.history = history
+        self.agentsCanSwitch = agentsCanSwitch
     }
 
     // A file written by 1.0 has no history: it must still open.
@@ -76,10 +80,11 @@ public struct SwitchState: Codable, Equatable, Sendable {
         activeAccountID = try container.decodeIfPresent(UUID.self, forKey: .activeAccountID)
         sessionStamp = try container.decodeIfPresent(String.self, forKey: .sessionStamp)
         history = try container.decodeIfPresent([UsageEvent].self, forKey: .history) ?? []
+        agentsCanSwitch = try container.decodeIfPresent(Bool.self, forKey: .agentsCanSwitch) ?? true
     }
 
-    mutating func record(_ kind: UsageEvent.Kind, for id: UUID, at date: Date) {
-        history.append(UsageEvent(accountID: id, kind: kind, date: date))
+    mutating func record(_ kind: UsageEvent.Kind, for id: UUID, at date: Date, origin: Origin) {
+        history.append(UsageEvent(accountID: id, kind: kind, date: date, source: origin.source, client: origin.client))
         if history.count > UsageEvent.limit { history.removeFirst(history.count - UsageEvent.limit) }
     }
 }
@@ -100,17 +105,27 @@ public struct Snapshot: Equatable, Sendable {
     public var accounts: [Account]
     public var session: SessionStatus
     public var usage: UsageSummary
+    public var agentsCanSwitch: Bool
 
-    public init(accounts: [Account], session: SessionStatus, usage: UsageSummary? = nil) {
+    public init(accounts: [Account], session: SessionStatus, usage: UsageSummary? = nil, agentsCanSwitch: Bool = true) {
         self.accounts = accounts
         self.session = session
         self.usage = usage ?? UsageSummary(accounts: accounts, events: [], now: Date())
+        self.agentsCanSwitch = agentsCanSwitch
     }
 
     public var activeAccount: Account? {
         guard case .account(let id) = session else { return nil }
         return accounts.first { $0.id == id }
     }
+}
+
+/// What `useProject` did. / Lo que hizo `useProject`.
+public struct ProjectUse: Equatable, Sendable {
+    public var account: Account
+    public var project: Project
+    /// False when the CLI was already on that account. / False si el CLI ya estaba en esa cuenta.
+    public var switched: Bool
 }
 
 public enum SwitchError: LocalizedError, Equatable {
@@ -126,6 +141,7 @@ public enum SwitchError: LocalizedError, Equatable {
     case timeout(String)
     case noMatch(String)
     case ambiguous(String, [String])
+    case agentsNotAllowed
 
     public var errorDescription: String? {
         switch self {
@@ -160,6 +176,9 @@ public enum SwitchError: LocalizedError, Equatable {
         case .ambiguous(let query, let names):
             return tr("“\(query)” matches several: \(names.joined(separator: ", ")).",
                       "«\(query)» encaja con varias: \(names.joined(separator: ", ")).")
+        case .agentsNotAllowed:
+            return tr("Agents may not switch accounts: that is turned off in Supabase Switch → Settings → Agents. Ask the user to switch, or to turn it on.",
+                      "Los agentes no pueden cambiar de cuenta: está desactivado en Supabase Switch → Ajustes → Agentes. Pide al usuario que cambie, o que lo active.")
         }
     }
 }

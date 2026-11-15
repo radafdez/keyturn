@@ -18,6 +18,8 @@ let usage = tr(
       sbswitch remove <account>
       sbswitch stats                    switches and runs per account
       sbswitch run <account> -- <cmd>   run one command as that account without switching
+      sbswitch mcp                      MCP server for AI agents (Claude Code, Codex, Cursor…):
+                                        claude mcp add --scope user supabase-switch -- sbswitch mcp
       sbswitch version
 
     <account> is its name, the start of its name, or the ref, name or alias of
@@ -39,6 +41,8 @@ let usage = tr(
       sbswitch remove <cuenta>
       sbswitch stats                    cambios y órdenes por cuenta
       sbswitch run <cuenta> -- <orden>  lanza una orden con esa cuenta sin cambiar el CLI
+      sbswitch mcp                      servidor MCP para agentes de IA (Claude Code, Codex, Cursor…):
+                                        claude mcp add --scope user supabase-switch -- sbswitch mcp
       sbswitch version
 
     <cuenta> es su nombre, el principio del nombre, o el ref, el nombre o el alias de
@@ -121,6 +125,14 @@ func main() throws {
         return
     }
 
+    if command == "mcp" {
+        // Agents read English best; stdout belongs to the protocol from here on.
+        // Los agentes leen mejor en inglés; a partir de aquí stdout es del protocolo.
+        AppLanguage.current = .english
+        MCPServer(service: { try SwitchService.live() }).run()
+        return
+    }
+
     let service = try SwitchService.live()
 
     func account(_ query: String?) throws -> Account {
@@ -145,7 +157,7 @@ func main() throws {
 
     case "use":
         let target = try account(arguments.first)
-        let snapshot = try service.activate(target.id)
+        let snapshot = try service.activate(target.id, origin: .terminal)
         print(describe(snapshot.session, in: snapshot.accounts))
 
     case "capture":

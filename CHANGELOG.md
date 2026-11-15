@@ -6,6 +6,33 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-15
+
+### Added
+
+- `sbswitch mcp`: a Model Context Protocol server, so AI agents (Claude Code,
+  Codex, Cursor, Claude Desktop…) can list the accounts and put the CLI on the
+  one that owns a project. Four tools: `list_accounts`, `current_account`,
+  `use_project` and `switch_account`. Agents never see a token.
+- Every switch records who asked for it: the menu, a terminal, or an agent and
+  its name.
+- A settings window (⌘, from the menu) with a sidebar: General (language, open
+  at login, the state file), Accounts, AI agents (allow or block agent
+  switches, notifications, one-click setup for Claude Code and Codex, JSON for
+  the rest), Activity, Statistics (per account, per source, per agent) and
+  About (version, build, updates, links, license).
+- A macOS notification when an agent switches the account (can be turned off).
+- Switches made from a terminal or an agent show up in the app at once.
+- Choose the language in Settings instead of following the system.
+- An app icon.
+- `SUPABASE_SWITCH_DEMO=1` (made-up accounts in memory) and
+  `SUPABASE_SWITCH_SNAPSHOTS=<folder>` (draws the screenshots).
+
+### Changed
+
+- The menu footer has a settings button in place of the version number.
+- Counts read “1 run” instead of “1 runs”.
+
 ## [1.1.1] - 2026-11-15
 
 ### Fixed

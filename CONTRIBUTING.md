@@ -42,7 +42,14 @@ your real CLI login.
 ## Pull requests
 
 Keep them focused, describe what changes for the user, and say how you tested
-it — for UI changes, a screenshot helps.
+it — for UI changes, a screenshot helps. `SUPABASE_SWITCH_DEMO=1` runs the app
+with made-up accounts, and `SUPABASE_SWITCH_SNAPSHOTS=<folder>` draws every
+screen into PNGs (see the README); the pictures in `docs/` come from there, so
+they never show real accounts.
+
+Changes to `sbswitch mcp` are tested in `Tests/SwitchCoreTests/MCPServerTests.swift`
+by sending JSON-RPC lines to `MCPServer.handle(_:)`. A tool must never return a
+token, and a switch must record its origin.
 
 By contributing you agree that your work is released under the
 [MIT License](LICENSE), and to follow the [Code of Conduct](CODE_OF_CONDUCT.md).

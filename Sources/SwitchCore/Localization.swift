@@ -14,6 +14,10 @@ public enum AppLanguage: String, Sendable {
 
     public nonisolated(unsafe) static var current: AppLanguage = detect()
 
+    /// What the system (or `SUPABASE_SWITCH_LANG`) asks for, whatever the app chose.
+    /// Lo que pide el sistema (o `SUPABASE_SWITCH_LANG`), elija lo que elija la app.
+    public static var system: AppLanguage { detect() }
+
     static func detect(
         environment: [String: String] = ProcessInfo.processInfo.environment,
         preferred: [String] = Locale.preferredLanguages

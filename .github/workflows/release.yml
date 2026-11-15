@@ -14,6 +14,9 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v6
+        with:
+          # The build number counts commits. / El número de build cuenta commits.
+          fetch-depth: 0
       - name: Check the tag matches the version
         run: |
           version=$(sed -n 's/.*switchVersion = "\(.*\)".*/\1/p' Sources/SwitchCore/Version.swift)

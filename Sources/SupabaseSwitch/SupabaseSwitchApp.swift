@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import SwitchCore
 
 @main
 struct SupabaseSwitchApp: App {
@@ -14,6 +15,12 @@ struct SupabaseSwitchApp: App {
             Text(model.menuBarTitle)
         }
         .menuBarExtraStyle(.window)
+
+        Window(tr("Supabase Switch Settings", "Ajustes de Supabase Switch"), id: SettingsView.windowID) {
+            SettingsView(model: model)
+        }
+        .defaultSize(width: 760, height: 540)
+        .windowResizability(.contentMinSize)
     }
 }
 
@@ -23,6 +30,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Sin icono en el Dock, también si se lanza fuera del bundle.
         NSApp.setActivationPolicy(.accessory)
         NSApp.mainMenu = Self.editMenu()
+        if let folder = ProcessInfo.processInfo.environment["SUPABASE_SWITCH_SNAPSHOTS"] {
+            Task { @MainActor in
+                await Snapshots.render(into: URL(fileURLWithPath: folder))
+                NSApp.terminate(nil)
+            }
+        }
     }
 
     /// An app without a menu bar of its own still needs an Edit menu: it is

@@ -40,7 +40,12 @@ for architecture in arm64 x86_64; do
 done
 
 rm -rf "$bundle"
-mkdir -p "$bundle/Contents/MacOS"
+mkdir -p "$bundle/Contents/MacOS" "$bundle/Contents/Resources"
+cp Resources/AppIcon.icns "$bundle/Contents/Resources/AppIcon.icns"
+# The build number counts commits, so two builds of one version can be told apart.
+# El número de build cuenta commits, para distinguir dos builds de una versión.
+build="$(git rev-list --count HEAD 2>/dev/null || echo 1)"
+built="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 for product in SupabaseSwitch sbswitch; do
   lipo -create "$slices/arm64/$product" "$slices/x86_64/$product" \
     -output "$bundle/Contents/MacOS/$product"
@@ -58,7 +63,9 @@ cat > "$bundle/Contents/Info.plist" <<PLIST
   <key>CFBundleExecutable</key><string>SupabaseSwitch</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>$version</string>
-  <key>CFBundleVersion</key><string>1</string>
+  <key>CFBundleVersion</key><string>$build</string>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
+  <key>SupabaseSwitchBuildDate</key><string>$built</string>
   <key>CFBundleDevelopmentRegion</key><string>en</string>
   <key>CFBundleLocalizations</key><array><string>en</string><string>es</string></array>
   <key>NSHumanReadableCopyright</key><string>Copyright © 2026 RAIS LLC. MIT License.</string>

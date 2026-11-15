@@ -4,7 +4,7 @@
 
 [English](README.md)
 
-<img src="docs/menu-es.png" width="340" alt="El menú en español, con una cuenta desplegada y las estadísticas">
+<img src="docs/menu-es.png" width="340" alt="El menú en español, con tres cuentas y una en uso"> <img src="docs/settings-agents-es.png" width="420" alt="Ajustes: dejar que los agentes de IA cambien la cuenta, y conectar Claude Code y Codex">
 
 El CLI `supabase` guarda una sola sesión. Si tus proyectos viven en varias
 cuentas de Supabase —una por cliente, la personal y la del trabajo—, cada cambio
@@ -13,17 +13,24 @@ Supabase Switch guarda un token de acceso por cuenta en el Llavero de macOS y le
 da al CLI el que toca cuando haces clic.
 
 - **Un clic** en la barra de menús, o `sbswitch use acme` en la terminal.
+- **Tu agente de IA cambia por ti**: Claude Code, Codex, Cursor y cualquier
+  otro cliente MCP pueden llamar a `use_project` antes de ejecutar `supabase`.
+  Cada cambio queda registrado con quién lo pidió, y se puede apagar. Ver
+  [Agentes de IA](#agentes-de-ia-mcp).
 - **Los proyectos a mano**: cada cuenta lista sus proyectos; copias el `ref`
   para `--project-ref` o `supabase link` sin abrir el panel.
 - **Tus nombres**: renombra las cuentas y pon alias locales a los proyectos
   (`acme-production` → «Acme prod»). Supabase nunca los ve.
-- **Estadísticas básicas**: cambios y órdenes `sbswitch run` por cuenta, de esta
-  semana y cuándo se usó cada una por última vez. Solo en tu Mac.
+- **Actividad y estadísticas**: cada cambio con quién lo hizo (tú en el menú,
+  una terminal o qué agente), y las cuentas por cuenta, por origen y por
+  agente. Solo en tu Mac.
 - **Una orden suelta con otra cuenta** sin cambiar:
   `sbswitch run globex -- supabase migration list`.
 - **Se entera de los logins hechos fuera**: un `supabase login` en una terminal
   aparece en el menú en 30 segundos como mucho.
-- En inglés y en español, según el idioma del sistema.
+- **Ventana de ajustes** (⌘, desde el menú): cuentas, agentes, actividad,
+  estadísticas, idioma y «Acerca de».
+- En inglés y en español, según el idioma del sistema o el que elijas.
 
 ## Requisitos
 
@@ -63,6 +70,49 @@ seguridad**. Si prefieres no hacerlo, compílala: tarda un minuto.
 Con clic derecho sobre una cuenta: renombrar, releer proyectos o quitarla. El
 lápiz junto a un proyecto le pone un nombre local.
 
+## Agentes de IA (MCP)
+
+`sbswitch mcp` es un servidor del [Model Context Protocol](https://modelcontextprotocol.io)
+por stdio. Un agente que está trabajando en una funcionalidad puede preguntar
+en qué cuenta está el CLI y cambiarlo a la dueña del proyecto, sin que salgas
+de la conversación.
+
+| Herramienta | Qué hace |
+|-------------|----------|
+| `list_accounts` | Las cuentas y sus proyectos (ref, nombre, alias, región), y en cuál está el CLI. Solo lectura. |
+| `current_account` | La cuenta con la que el CLI tiene sesión ahora. Solo lectura. |
+| `use_project` | Pone el CLI en la cuenta dueña de un proyecto (ref, nombre o alias). No hace nada si ya está ahí. |
+| `switch_account` | Cambia a una cuenta por su nombre. |
+
+**Se conecta** desde **Ajustes → Agentes de IA**: un botón para Claude Code y
+otro para Codex (ejecutan `claude mcp add` / `codex mcp add` por ti). O a mano:
+
+```bash
+claude mcp add --scope user supabase-switch -- "/Applications/Supabase Switch.app/Contents/MacOS/sbswitch" mcp
+```
+
+```bash
+codex mcp add supabase-switch -- "/Applications/Supabase Switch.app/Contents/MacOS/sbswitch" mcp
+```
+
+Para Claude Desktop, Cursor, Windsurf y las demás que se configuran con JSON,
+el mismo panel da el bloque para pegar (está en el
+[README en inglés](README.md#ai-agents-mcp)).
+
+Qué pueden hacer los agentes y qué no:
+
+- **Nunca ven un token**: el servidor solo devuelve nombres, refs y regiones.
+- Cada cambio que hacen queda registrado con el nombre del agente (tal como se
+  llama a sí mismo su cliente MCP) y aparece en **Actividad**, con un aviso de
+  macOS si lo quieres.
+- **Ajustes → Agentes de IA → Dejar que los agentes de IA cambien la cuenta**
+  lo apaga. Siguen pudiendo ver qué cuenta está en uso, y reciben un error que
+  les dice que te lo pidan.
+- El servidor solo cambia la sesión del CLI. No ejecuta órdenes `supabase`, no
+  lee los datos de tus proyectos ni toca tu base de datos.
+
+<img src="docs/settings-activity-es.png" width="420" alt="Actividad: cada cambio con quién lo pidió">
+
 ## `sbswitch`
 
 Las órdenes son las mismas que en el [README en inglés](README.md#sbswitch);
@@ -76,9 +126,11 @@ Las órdenes son las mismas que en el [README en inglés](README.md#sbswitch);
   refs, regiones, tus alias y el historial de uso (cuenta, tipo y hora; nunca la
   orden). Nada secreto.
 - **Sin telemetría.** De tu Mac no sale nada más que lo que el propio CLI le
-  envía a Supabase.
+  envía a Supabase. La app no busca actualizaciones por su cuenta.
 - Cualquier proceso con tu usuario puede leer los tokens a través de `security`
   sin que macOS pregunte, igual que la sesión del propio CLI.
+- Un agente con el MCP conectado puede cambiar el CLI a cualquier cuenta
+  registrada. Si prefieres hacerlo tú, apágalo en Ajustes.
 
 Para informar de una vulnerabilidad, ver [SECURITY.md](SECURITY.md).
 

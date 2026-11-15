@@ -4,6 +4,7 @@ import SwitchCore
 
 struct MenuView: View {
     @ObservedObject var model: AppModel
+    @Environment(\.openWindow) private var openWindow
 
     enum Panel { case none, adding, stats }
 
@@ -125,7 +126,15 @@ struct MenuView: View {
             .toggleStyle(.checkbox)
             .font(.callout)
             Spacer()
-            Text("v\(switchVersion)").font(.caption2).foregroundStyle(.tertiary)
+            Button {
+                openWindow(id: SettingsView.windowID)
+                NSApp.activate(ignoringOtherApps: true)
+            } label: {
+                Image(systemName: "gearshape")
+            }
+            .buttonStyle(.borderless)
+            .keyboardShortcut(",", modifiers: .command)
+            .help(tr("Settings… (⌘,)", "Ajustes… (⌘,)"))
             Button(tr("Quit", "Salir")) { NSApp.terminate(nil) }
                 .buttonStyle(.borderless)
         }
@@ -136,7 +145,7 @@ struct MenuView: View {
 
 // MARK: - One account
 
-private struct AccountRow: View {
+struct AccountRow: View {
     @ObservedObject var model: AppModel
     let account: Account
     let usage: AccountUsage?
@@ -269,7 +278,7 @@ private struct AccountRow: View {
     private var usageLine: String? {
         guard let usage, usage.switches + usage.runs > 0 else { return nil }
         let last = usage.lastUsed.map { relativeTime($0) } ?? ""
-        return tr("\(usage.switches) switches · last \(last)", "\(usage.switches) cambios · último \(last)")
+        return switchesCount(usage.switches) + " · " + tr("last \(last)", "último \(last)")
     }
 
     private func startRenaming() {
@@ -286,7 +295,7 @@ private struct AccountRow: View {
 
 // MARK: - One project
 
-private struct ProjectRow: View {
+struct ProjectRow: View {
     @ObservedObject var model: AppModel
     let accountID: UUID
     let project: Project
@@ -363,7 +372,7 @@ private struct StatsPanel: View {
             }
 
             if usage.totalSwitches + usage.totalRuns == 0 {
-                Text(tr("Nothing counted yet. Switches and `sbswitch run` commands are counted from version 1.1 on.",
+                markdown(tr("Nothing counted yet. Switches and `sbswitch run` commands are counted from version 1.1 on.",
                         "Aún no hay nada contado. Los cambios y las órdenes `sbswitch run` se cuentan desde la versión 1.1."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -390,14 +399,14 @@ private struct StatsPanel: View {
 
     private var totals: String {
         let since = usage.since.map { relativeTime($0) } ?? ""
-        return tr("\(usage.totalSwitches) switches · \(usage.totalRuns) runs · counted since \(since)",
-                  "\(usage.totalSwitches) cambios · \(usage.totalRuns) órdenes · contados desde \(since)")
+        return [switchesCount(usage.totalSwitches), runsCount(usage.totalRuns), tr("counted since \(since)", "contados desde \(since)")]
+            .joined(separator: " · ")
     }
 
     private func detail(_ item: AccountUsage) -> String {
         let last = item.lastUsed.map { relativeTime($0) } ?? tr("never", "nunca")
-        return tr("\(item.switchesThisWeek) this week · \(item.runs) runs · last \(last)",
-                  "\(item.switchesThisWeek) esta semana · \(item.runs) órdenes · último \(last)")
+        return [tr("\(item.switchesThisWeek) this week", "\(item.switchesThisWeek) esta semana"), runsCount(item.runs),
+                tr("last \(last)", "último \(last)")].joined(separator: " · ")
     }
 
     private struct Bar: View {
@@ -416,7 +425,7 @@ private struct StatsPanel: View {
 
 // MARK: - Adding an account
 
-private struct AddAccountForm: View {
+struct AddAccountForm: View {
     @ObservedObject var model: AppModel
     let close: () -> Void
 
@@ -474,11 +483,21 @@ private struct AddAccountForm: View {
 
 // MARK: - Small pieces
 
+/// "1 switch", "3 switches" / «1 cambio», «3 cambios».
+func switchesCount(_ count: Int) -> String {
+    count == 1 ? tr("1 switch", "1 cambio") : tr("\(count) switches", "\(count) cambios")
+}
+
+/// "1 run", "3 runs" / «1 orden», «3 órdenes».
+func runsCount(_ count: Int) -> String {
+    count == 1 ? tr("1 run", "1 orden") : tr("\(count) runs", "\(count) órdenes")
+}
+
 /// A text field with Save and Cancel that takes the keyboard as soon as it
 /// appears: Return saves, Escape cancels.
 /// Un campo con Guardar y Cancelar que coge el teclado nada más aparecer:
 /// Intro guarda, Escape cancela.
-private struct InlineNameField: View {
+struct InlineNameField: View {
     @Binding var text: String
     let placeholder: String
     let save: () -> Void
