@@ -1,0 +1,38 @@
+name: Bug report
+description: Something does not work as described.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "**Never paste an access token (`sbp_…`) here.** Replace project refs if they are private."
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what you saw instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+  - type: input
+    id: version
+    attributes:
+      label: Supabase Switch version
+      description: "`sbswitch version`, or the number at the bottom of the menu."
+    validations:
+      required: true
+  - type: input
+    id: cli
+    attributes:
+      label: Supabase CLI version
+      description: "`supabase --version`"
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+    validations:
+      required: true

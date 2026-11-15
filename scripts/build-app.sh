@@ -1,0 +1,83 @@
+#!/bin/bash
+# Builds `dist/Supabase Switch.app` and `dist/sbswitch`.
+# With `--install`, also copies the app to /Applications and links `sbswitch`
+# next to the Supabase CLI.
+#
+# Construye `dist/Supabase Switch.app` y `dist/sbswitch`.
+# Con `--install`, además copia la app a /Applications y enlaza `sbswitch`
+# junto al CLI de Supabase.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+install=false
+for argument in "$@"; do
+  case "$argument" in
+    --install) install=true ;;
+    *) echo "Usage: scripts/build-app.sh [--install]" >&2; exit 2 ;;
+  esac
+done
+
+version="$(sed -n 's/.*switchVersion = "\(.*\)".*/\1/p' Sources/SwitchCore/Version.swift)"
+[ -n "$version" ] || { echo "No version in Sources/SwitchCore/Version.swift" >&2; exit 1; }
+name="Supabase Switch"
+bundle="dist/$name.app"
+
+swift build -c release
+bin="$(swift build -c release --show-bin-path)"
+
+rm -rf "$bundle"
+mkdir -p "$bundle/Contents/MacOS"
+cp "$bin/SupabaseSwitch" "$bundle/Contents/MacOS/SupabaseSwitch"
+cp "$bin/sbswitch" "$bundle/Contents/MacOS/sbswitch"
+cp "$bin/sbswitch" dist/sbswitch
+
+cat > "$bundle/Contents/Info.plist" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleName</key><string>$name</string>
+  <key>CFBundleDisplayName</key><string>$name</string>
+  <key>CFBundleIdentifier</key><string>com.raisapp.supabase-switch</string>
+  <key>CFBundleExecutable</key><string>SupabaseSwitch</string>
+  <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleShortVersionString</key><string>$version</string>
+  <key>CFBundleVersion</key><string>1</string>
+  <key>CFBundleDevelopmentRegion</key><string>en</string>
+  <key>CFBundleLocalizations</key><array><string>en</string><string>es</string></array>
+  <key>NSHumanReadableCopyright</key><string>Copyright © 2026 RAIS LLC. MIT License.</string>
+  <key>LSMinimumSystemVersion</key><string>13.0</string>
+  <key>LSUIElement</key><true/>
+  <key>NSHighResolutionCapable</key><true/>
+</dict>
+</plist>
+PLIST
+
+# Ad-hoc signature: enough to run on this Mac. The tokens do not depend on it:
+# they are stored through /usr/bin/security, so a rebuild keeps reading them.
+# Firma ad hoc: basta para ejecutarla en este Mac. Los tokens no dependen de
+# ella: se guardan a través de /usr/bin/security, así que una recompilación los
+# sigue leyendo.
+codesign --force --sign - "$bundle/Contents/MacOS/sbswitch"
+codesign --force --sign - "$bundle"
+codesign --force --sign - dist/sbswitch
+
+echo "Built: $bundle ($version)"
+
+if $install; then
+  target="/Applications/$name.app"
+  pkill -x SupabaseSwitch 2>/dev/null || true
+  rm -rf "$target"
+  cp -R "$bundle" "$target"
+  echo "Installed: $target"
+
+  for directory in /opt/homebrew/bin /usr/local/bin; do
+    if [ -d "$directory" ] && [ -w "$directory" ]; then
+      ln -sf "$target/Contents/MacOS/sbswitch" "$directory/sbswitch"
+      echo "Linked: $directory/sbswitch"
+      break
+    fi
+  done
+
+  open "$target"
+fi
