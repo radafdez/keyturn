@@ -68,7 +68,7 @@ cat > "$bundle/Contents/Info.plist" <<PLIST
   <key>SupabaseSwitchBuildDate</key><string>$built</string>
   <key>CFBundleDevelopmentRegion</key><string>en</string>
   <key>CFBundleLocalizations</key><array><string>en</string><string>es</string></array>
-  <key>NSHumanReadableCopyright</key><string>Copyright © 2026 RAIS LLC. MIT License.</string>
+  <key>NSHumanReadableCopyright</key><string>Copyright © 2026 Radames Fernandez. MIT License.</string>
   <key>LSMinimumSystemVersion</key><string>13.0</string>
   <key>LSUIElement</key><true/>
   <key>NSHighResolutionCapable</key><true/>

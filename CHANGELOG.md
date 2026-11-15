@@ -32,6 +32,7 @@ All notable changes to this project are documented here. The format follows
 
 - The menu footer has a settings button in place of the version number.
 - Counts read “1 run” instead of “1 runs”.
+- The copyright holder is Radames Fernandez (LICENSE, the app and About).
 
 ## [1.1.1] - 2026-11-15
 

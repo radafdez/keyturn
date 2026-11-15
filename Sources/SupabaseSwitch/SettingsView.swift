@@ -448,7 +448,7 @@ private struct AboutPane: View {
         return date.formatted(.dateTime.year().month(.wide).day().locale(AppLanguage.current.locale))
     }
     private var copyright: String {
-        (info["NSHumanReadableCopyright"] as? String)?.replacingOccurrences(of: "Copyright ", with: "") ?? "© 2026 RAIS LLC. MIT License."
+        (info["NSHumanReadableCopyright"] as? String)?.replacingOccurrences(of: "Copyright ", with: "") ?? "© 2026 Radames Fernandez. MIT License."
     }
 
     /// Homebrew installs casks under its Caskroom; anything else came from GitHub.
