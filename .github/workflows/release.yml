@@ -13,7 +13,7 @@ jobs:
   release:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           # The build number counts commits. / El número de build cuenta commits.
           fetch-depth: 0
