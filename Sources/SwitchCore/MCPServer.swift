@@ -16,7 +16,7 @@ import Foundation
 /// ni lanzar órdenes a través de este servidor. Cada cambio se apunta con el
 /// nombre del cliente, y el usuario puede prohibir cambiar (consultar, no).
 public final class MCPServer {
-    public static let name = "supabase-switch"
+    public static let name = "keyturn"
     /// Newest first. An unknown version asked by the client gets the newest.
     /// La más nueva primero. A una versión desconocida se le responde con la más nueva.
     public static let protocolVersions = ["2025-11-25", "2025-06-18", "2025-03-26", "2024-11-05"]
@@ -82,7 +82,7 @@ public final class MCPServer {
             return [
                 "protocolVersion": Self.protocolVersions.contains(asked) ? asked : Self.protocolVersions[0],
                 "capabilities": ["tools": ["listChanged": false]],
-                "serverInfo": ["name": Self.name, "title": "Supabase Switch", "version": switchVersion],
+                "serverInfo": ["name": Self.name, "title": "Keyturn", "version": switchVersion],
                 "instructions": Self.instructions,
             ]
         case "ping":
@@ -115,7 +115,7 @@ public final class MCPServer {
         [
             "name": "list_accounts",
             "title": "List Supabase accounts",
-            "description": "The Supabase accounts registered in Supabase Switch, the projects of each (ref, name, local alias, region), and which account the Supabase CLI is logged in as now.",
+            "description": "The Supabase accounts registered in Keyturn, the projects of each (ref, name, local alias, region), and which account the Supabase CLI is logged in as now.",
             "inputSchema": ["type": "object", "properties": [String: Any](), "additionalProperties": false],
             "annotations": ["title": "List Supabase accounts", "readOnlyHint": true, "openWorldHint": false],
         ],
@@ -253,7 +253,7 @@ public final class MCPServer {
 
     static func describe(_ snapshot: Snapshot) -> String {
         guard !snapshot.accounts.isEmpty else {
-            return "No accounts are registered in Supabase Switch yet. The user registers them from its menu bar icon."
+            return "No accounts are registered in Keyturn yet. The user registers them from its menu bar icon."
         }
         var lines = [sessionSentence(snapshot)]
         if !snapshot.agentsCanSwitch { lines.append("Switching by agents is turned off: you can read, not switch.") }
@@ -273,7 +273,7 @@ public final class MCPServer {
         switch snapshot.session {
         case .none: return "The Supabase CLI has no stored login."
         case .account: return "The Supabase CLI is logged in as “\(snapshot.activeAccount?.name ?? "?")”."
-        case .unregistered: return "The Supabase CLI is logged in as an account that is not registered in Supabase Switch."
+        case .unregistered: return "The Supabase CLI is logged in as an account that is not registered in Keyturn."
         case .unverified(let detail): return "The Supabase CLI has a login, but it could not say whose: \(detail)"
         }
     }

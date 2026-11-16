@@ -194,8 +194,8 @@ import Testing
     }
 
     @Test func theEnvironmentWins() {
-        #expect(AppLanguage.detect(environment: ["SUPABASE_SWITCH_LANG": "ES"], preferred: ["en-US"]) == .spanish)
-        #expect(AppLanguage.detect(environment: ["SUPABASE_SWITCH_LANG": "en"], preferred: ["es-ES"]) == .english)
-        #expect(AppLanguage.detect(environment: ["SUPABASE_SWITCH_LANG": "de"], preferred: ["es-ES"]) == .spanish)
+        #expect(AppLanguage.detect(environment: ["KEYTURN_LANG": "ES"], preferred: ["en-US"]) == .spanish)
+        #expect(AppLanguage.detect(environment: ["KEYTURN_LANG": "en"], preferred: ["es-ES"]) == .english)
+        #expect(AppLanguage.detect(environment: ["KEYTURN_LANG": "de"], preferred: ["es-ES"]) == .spanish)
     }
 }

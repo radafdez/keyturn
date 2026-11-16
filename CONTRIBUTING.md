@@ -16,12 +16,12 @@ You need macOS 13+ and Swift 5.9+ (the Command Line Tools are enough).
 ```bash
 ./scripts/test.sh
 ./scripts/build-app.sh
-open "dist/Supabase Switch.app"
+open "dist/Keyturn.app"
 ```
 
 Tests must pass without touching the real Keychain or the real CLI: use the
 fakes in `Tests/SwitchCoreTests/Fakes.swift`. The one test that touches the
-real Keychain (in its own service only) runs with `SBSWITCH_LIVE_KEYCHAIN=1`.
+real Keychain (in its own service only) runs with `KEYTURN_LIVE_KEYCHAIN=1`.
 
 **Never test `supabase login` with a fake token on your machine**: it replaces
 your real CLI login.
@@ -29,7 +29,7 @@ your real CLI login.
 ## Guidelines
 
 - Logic goes in `SwitchCore`, behind the `SecretStore`, `SupabaseCLI` and
-  `StateStore` protocols, with a test. The app and `sbswitch` stay thin.
+  `StateStore` protocols, with a test. The app and `keyturn` stay thin.
 - Every user-facing string goes through `tr("English", "Español")`. If you
   don't speak Spanish, write the English and leave the Spanish to review.
 - In SwiftUI views use `@ViewState` / `@ViewFocus` instead of `@State` /
@@ -42,12 +42,12 @@ your real CLI login.
 ## Pull requests
 
 Keep them focused, describe what changes for the user, and say how you tested
-it — for UI changes, a screenshot helps. `SUPABASE_SWITCH_DEMO=1` runs the app
-with made-up accounts, and `SUPABASE_SWITCH_SNAPSHOTS=<folder>` draws every
+it — for UI changes, a screenshot helps. `KEYTURN_DEMO=1` runs the app
+with made-up accounts, and `KEYTURN_SNAPSHOTS=<folder>` draws every
 screen into PNGs (see the README); the pictures in `docs/` come from there, so
 they never show real accounts.
 
-Changes to `sbswitch mcp` are tested in `Tests/SwitchCoreTests/MCPServerTests.swift`
+Changes to `keyturn mcp` are tested in `Tests/SwitchCoreTests/MCPServerTests.swift`
 by sending JSON-RPC lines to `MCPServer.handle(_:)`. A tool must never return a
 token, and a switch must record its origin.
 

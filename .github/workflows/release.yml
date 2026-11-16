@@ -1,6 +1,6 @@
 name: Release
 
-# Push a tag like v1.1.0 to publish the app and sbswitch as a GitHub release.
+# Push a tag like v1.1.0 to publish the app and keyturn as a GitHub release.
 # The build is signed ad hoc, not notarized: the README explains the first launch.
 # Updates go through Sparkle: the zip and appcast.xml are signed with the EdDSA
 # key in the SPARKLE_PRIVATE_KEY secret, and the app checks them against the
@@ -36,15 +36,15 @@ jobs:
         run: ./scripts/build-app.sh
       - name: Check the binaries are universal
         run: |
-          for binary in dist/sbswitch "dist/Supabase Switch.app/Contents/MacOS/SupabaseSwitch" "dist/Supabase Switch.app/Contents/MacOS/sbswitch"; do
+          for binary in dist/keyturn "dist/Keyturn.app/Contents/MacOS/KeyturnApp" "dist/Keyturn.app/Contents/MacOS/keyturn"; do
             lipo "$binary" -verify_arch arm64
             lipo "$binary" -verify_arch x86_64
           done
       - name: Package
         run: |
           version="${GITHUB_REF_NAME#v}"
-          ditto -c -k --keepParent "dist/Supabase Switch.app" "Supabase-Switch-$version.zip"
-          ditto -c -k --norsrc --noextattr dist/sbswitch "sbswitch-$version.zip"
+          ditto -c -k --keepParent "dist/Keyturn.app" "Keyturn-$version.zip"
+          ditto -c -k --norsrc --noextattr dist/keyturn "keyturn-$version.zip"
           shasum -a 256 *.zip > SHA256SUMS.txt
           # The notes are this version's section of CHANGELOG.md: Sparkle shows
           # them as they are, the release page adds how to install.
@@ -55,18 +55,18 @@ jobs:
 
           ### Install
 
-          `brew install --cask radafdez/tap/supabase-switch`, or unzip
-          `Supabase-Switch-*.zip` and move the app to `/Applications`. The build is
+          `brew install --cask radafdez/tap/keyturn`, or unzip
+          `Keyturn-*.zip` and move the app to `/Applications`. The build is
           **not notarized**: the first launch is blocked until you click **Open
           Anyway** in System Settings → Privacy & Security. Or build from source — see
-          the [README](https://github.com/radafdez/supabase-switch#install).
+          the [README](https://github.com/radafdez/keyturn#install).
           NOTE
           sed -i '' 's/^          //' NOTES.md
       - name: Sign the update and write the appcast
         env:
           SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
-        run: ./scripts/make-appcast.sh "Supabase-Switch-${GITHUB_REF_NAME#v}.zip" CHANGES.md
+        run: ./scripts/make-appcast.sh "Keyturn-${GITHUB_REF_NAME#v}.zip" CHANGES.md
       - name: Publish
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" --title "Supabase Switch ${GITHUB_REF_NAME#v}" --notes-file NOTES.md *.zip SHA256SUMS.txt appcast.xml
+        run: gh release create "$GITHUB_REF_NAME" --title "Keyturn ${GITHUB_REF_NAME#v}" --notes-file NOTES.md *.zip SHA256SUMS.txt appcast.xml

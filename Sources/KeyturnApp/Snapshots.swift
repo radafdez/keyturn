@@ -5,7 +5,7 @@ import SwitchCore
 /// Draws the menu and every settings pane, with the demo accounts, into PNGs:
 /// the screenshots of the README.
 ///
-///     SUPABASE_SWITCH_SNAPSHOTS=docs "dist/Supabase Switch.app/Contents/MacOS/SupabaseSwitch"
+///     KEYTURN_SNAPSHOTS=docs "dist/Keyturn.app/Contents/MacOS/KeyturnApp"
 ///
 /// Dibuja el menú y cada panel de ajustes, con las cuentas de la demo, en PNG:
 /// las capturas del README.

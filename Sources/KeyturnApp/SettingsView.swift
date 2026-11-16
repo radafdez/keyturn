@@ -118,9 +118,9 @@ private struct GeneralPane: View {
             }
 
             Section(tr("In a terminal", "En una terminal")) {
-                CopyField(text: tr("sbswitch use <project>", "sbswitch use <proyecto>"))
-                markdown(tr("`sbswitch` does the same switch from the shell: `status`, `list`, `use`, `run` and `mcp`.",
-                            "`sbswitch` hace el mismo cambio desde el shell: `status`, `list`, `use`, `run` y `mcp`."))
+                CopyField(text: tr("keyturn use <project>", "keyturn use <proyecto>"))
+                markdown(tr("`keyturn` does the same switch from the shell: `status`, `list`, `use`, `run` and `mcp`.",
+                            "`keyturn` hace el mismo cambio desde el shell: `status`, `list`, `use`, `run` y `mcp`."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -202,7 +202,7 @@ private struct AgentsPane: View {
         Form {
             if recheck >= 0, Quarantine.blocksCommandLine(bundle: Bundle.main.bundleURL) {
                 Section {
-                    Label(tr("macOS is blocking sbswitch", "macOS está bloqueando sbswitch"), systemImage: "exclamationmark.triangle.fill")
+                    Label(tr("macOS is blocking keyturn", "macOS está bloqueando keyturn"), systemImage: "exclamationmark.triangle.fill")
                         .foregroundStyle(.orange)
                         .font(.headline)
                     Text(tr("Homebrew installed the app quarantined, and macOS stops the command, and the agents with it, until the mark is gone. The app cannot remove it itself. Run this in Terminal:",
@@ -225,8 +225,8 @@ private struct AgentsPane: View {
                             "Un aviso de macOS con el agente y la cuenta. Todos los cambios quedan en Actividad igualmente."))
                 }
             } footer: {
-                markdown(tr("Agents talk to `sbswitch mcp` (Model Context Protocol). They can list your accounts and projects and switch the CLI. They never see a token.",
-                        "Los agentes hablan con `sbswitch mcp` (Model Context Protocol). Pueden ver tus cuentas y proyectos y cambiar el CLI. Nunca ven un token."))
+                markdown(tr("Agents talk to `keyturn mcp` (Model Context Protocol). They can list your accounts and projects and switch the CLI. They never see a token.",
+                        "Los agentes hablan con `keyturn mcp` (Model Context Protocol). Pueden ver tus cuentas y proyectos y cambiar el CLI. Nunca ven un token."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.leading)
@@ -240,7 +240,7 @@ private struct AgentsPane: View {
             }
 
             Section {
-                CopyField(text: AgentClient.jsonConfiguration(sbswitch: model.sbswitchPath), lines: 8)
+                CopyField(text: AgentClient.jsonConfiguration(keyturn: model.keyturnPath), lines: 8)
             } header: {
                 Text(tr("Claude Desktop, Cursor, Windsurf and others", "Claude Desktop, Cursor, Windsurf y otros"))
             } footer: {
@@ -283,7 +283,7 @@ private struct AgentRow: View {
             if case .missing = status {
                 EmptyView()
             } else {
-                CopyField(text: client.commandLine(sbswitch: model.sbswitchPath))
+                CopyField(text: client.commandLine(keyturn: model.keyturnPath))
             }
         }
         .padding(.vertical, 2)
@@ -375,7 +375,7 @@ private struct ActivityPane: View {
         let account = model.accountName(event.accountID)
         switch (event.kind, event.source) {
         case (.ran, _):
-            return tr("`sbswitch run` with “\(account)”", "`sbswitch run` con «\(account)»")
+            return tr("`keyturn run` with “\(account)”", "`keyturn run` con «\(account)»")
         case (.switched, .agent):
             let who = clientTitle(event.client)
             return tr("\(who) switched to “\(account)”", "\(who) cambió a «\(account)»")
@@ -403,7 +403,7 @@ private struct StatisticsPane: View {
             } else {
                 Section {
                     LabeledContent(tr("Switches", "Cambios"), value: "\(usage.totalSwitches)")
-                    LabeledContent(tr("sbswitch run commands", "Órdenes sbswitch run"), value: "\(usage.totalRuns)")
+                    LabeledContent(tr("keyturn run commands", "Órdenes keyturn run"), value: "\(usage.totalRuns)")
                     if let since = usage.since {
                         LabeledContent(tr("Counted since", "Contado desde"),
                                        value: since.formatted(.dateTime.year().month().day().locale(AppLanguage.current.locale)))
@@ -472,12 +472,12 @@ private struct CountRow: View {
 /// Dispuesto como el panel Acerca de de las herramientas de barra de menús en
 /// las que se inspira: quién la hizo, cómo se actualiza, dónde está y su licencia.
 private struct AboutPane: View {
-    static let repository = URL(string: "https://github.com/radafdez/supabase-switch")!
+    static let repository = URL(string: "https://github.com/radafdez/keyturn")!
 
     private var info: [String: Any] { Bundle.main.infoDictionary ?? [:] }
     private var build: String { info["CFBundleVersion"] as? String ?? "dev" }
     private var builtOn: String? {
-        guard let raw = info["SupabaseSwitchBuildDate"] as? String,
+        guard let raw = info["KeyturnBuildDate"] as? String,
               let date = ISO8601DateFormatter().date(from: raw) else { return nil }
         return date.formatted(.dateTime.year().month(.wide).day().locale(AppLanguage.current.locale))
     }
@@ -494,7 +494,7 @@ private struct AboutPane: View {
                     Image(nsImage: NSApp.applicationIconImage)
                         .resizable()
                         .frame(width: 96, height: 96)
-                    Text("Supabase Switch").font(.title2.bold())
+                    Text("Keyturn").font(.title2.bold())
                     Text(tr("Version \(switchVersion) (\(build))", "Versión \(switchVersion) (\(build))"))
                         .foregroundStyle(.secondary)
                     if let builtOn {

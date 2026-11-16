@@ -385,8 +385,8 @@ private struct StatsPanel: View {
             }
 
             if usage.totalSwitches + usage.totalRuns == 0 {
-                markdown(tr("Nothing counted yet. Switches and `sbswitch run` commands are counted from version 1.1 on.",
-                        "Aún no hay nada contado. Los cambios y las órdenes `sbswitch run` se cuentan desde la versión 1.1."))
+                markdown(tr("Nothing counted yet. Switches and `keyturn run` commands are counted from version 1.1 on.",
+                        "Aún no hay nada contado. Los cambios y las órdenes `keyturn run` se cuentan desde la versión 1.1."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)

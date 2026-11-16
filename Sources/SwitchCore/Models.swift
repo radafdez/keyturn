@@ -60,8 +60,8 @@ public struct SwitchState: Codable, Equatable, Sendable {
     /// `activeAccountID`. Si cambia, alguien inició sesión fuera de la app.
     public var sessionStamp: String?
     public var history: [UsageEvent]
-    /// Whether `sbswitch mcp` may change the CLI's login. Reading is always allowed.
-    /// Si `sbswitch mcp` puede cambiar la sesión del CLI. Consultar siempre se puede.
+    /// Whether `keyturn mcp` may change the CLI's login. Reading is always allowed.
+    /// Si `keyturn mcp` puede cambiar la sesión del CLI. Consultar siempre se puede.
     public var agentsCanSwitch: Bool
 
     public init(accounts: [Account] = [], activeAccountID: UUID? = nil, sessionStamp: String? = nil, history: [UsageEvent] = [], agentsCanSwitch: Bool = true) {
@@ -177,8 +177,8 @@ public enum SwitchError: LocalizedError, Equatable {
             return tr("“\(query)” matches several: \(names.joined(separator: ", ")).",
                       "«\(query)» encaja con varias: \(names.joined(separator: ", ")).")
         case .agentsNotAllowed:
-            return tr("Agents may not switch accounts: that is turned off in Supabase Switch → Settings → Agents. Ask the user to switch, or to turn it on.",
-                      "Los agentes no pueden cambiar de cuenta: está desactivado en Supabase Switch → Ajustes → Agentes. Pide al usuario que cambie, o que lo active.")
+            return tr("Agents may not switch accounts: that is turned off in Keyturn → Settings → Agents. Ask the user to switch, or to turn it on.",
+                      "Los agentes no pueden cambiar de cuenta: está desactivado en Keyturn → Ajustes → Agentes. Pide al usuario que cambie, o que lo active.")
         }
     }
 }

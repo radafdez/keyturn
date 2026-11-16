@@ -21,7 +21,7 @@ public struct KeychainSlot: Equatable, Hashable, Sendable {
         KeychainSlot(service: ownService, account: id.uuidString)
     }
 
-    public static let ownService = "Supabase Switch"
+    public static let ownService = "Keyturn"
 }
 
 public protocol SecretStore: Sendable {

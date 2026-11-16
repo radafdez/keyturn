@@ -46,7 +46,7 @@ final class Updater: NSObject, ObservableObject {
 
     private override init() {
         let info = Bundle.main.infoDictionary ?? [:]
-        let snapshots = ProcessInfo.processInfo.environment["SUPABASE_SWITCH_SNAPSHOTS"] != nil
+        let snapshots = ProcessInfo.processInfo.environment["KEYTURN_SNAPSHOTS"] != nil
         let hasFeed = info["SUFeedURL"] != nil && info["SUPublicEDKey"] != nil
         if snapshots || (hasFeed && Bundle.main.bundleURL.pathExtension == "app") {
             channel = .sparkle

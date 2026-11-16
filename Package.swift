@@ -2,7 +2,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "SupabaseSwitch",
+    name: "Keyturn",
     platforms: [.macOS(.v13)],
     dependencies: [
         // Updates for the app, signed with our EdDSA key. Pinned: a new Sparkle is a
@@ -16,11 +16,11 @@ let package = Package(
         .target(name: "SwitchCore"),
         // The menu bar app. / La app de la barra de menús.
         .executableTarget(
-            name: "SupabaseSwitch",
+            name: "KeyturnApp",
             dependencies: ["SwitchCore", .product(name: "Sparkle", package: "Sparkle")]
         ),
         // The same switch from a terminal. / El mismo cambio desde una terminal.
-        .executableTarget(name: "sbswitch", dependencies: ["SwitchCore"]),
+        .executableTarget(name: "keyturn", dependencies: ["SwitchCore"]),
         .testTarget(name: "SwitchCoreTests", dependencies: ["SwitchCore"]),
     ]
 )

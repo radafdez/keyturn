@@ -48,7 +48,7 @@ private func text(_ result: [String: Any]) -> String {
         let result = try session.initialize()
 
         #expect(result["protocolVersion"] as? String == "2025-06-18")
-        #expect((result["serverInfo"] as? [String: Any])?["name"] as? String == "supabase-switch")
+        #expect((result["serverInfo"] as? [String: Any])?["name"] as? String == "keyturn")
         #expect((result["serverInfo"] as? [String: Any])?["version"] as? String == switchVersion)
         #expect((result["capabilities"] as? [String: Any])?["tools"] != nil)
         #expect((result["instructions"] as? String)?.contains("use_project") == true)
@@ -196,20 +196,22 @@ private func text(_ result: [String: Any]) -> String {
 }
 
 @Suite struct AgentSetupTests {
-    let app = "/Applications/Supabase Switch.app/Contents/MacOS/sbswitch"
+    // A folder with a space, so the path has to be quoted.
+    // Una carpeta con un espacio, para que la ruta tenga que ir entre comillas.
+    let app = "/Applications/Dev Tools/Keyturn.app/Contents/MacOS/keyturn"
 
     @Test func theCommandsAreQuotedForTheShell() {
-        #expect(AgentClient.claudeCode.commandLine(sbswitch: app)
-                == "claude mcp add --scope user supabase-switch -- '/Applications/Supabase Switch.app/Contents/MacOS/sbswitch' mcp")
-        #expect(AgentClient.codex.commandLine(sbswitch: "/opt/homebrew/bin/sbswitch")
-                == "codex mcp add supabase-switch -- /opt/homebrew/bin/sbswitch mcp")
+        #expect(AgentClient.claudeCode.commandLine(keyturn: app)
+                == "claude mcp add --scope user keyturn -- '/Applications/Dev Tools/Keyturn.app/Contents/MacOS/keyturn' mcp")
+        #expect(AgentClient.codex.commandLine(keyturn: "/opt/homebrew/bin/keyturn")
+                == "codex mcp add keyturn -- /opt/homebrew/bin/keyturn mcp")
         #expect(shellQuoted("it's") == #"'it'\''s'"#)
     }
 
-    @Test func theJSONConfigurationPointsAtSbswitchMcp() throws {
-        let json = AgentClient.jsonConfiguration(sbswitch: app)
+    @Test func theJSONConfigurationPointsAtKeyturnMcp() throws {
+        let json = AgentClient.jsonConfiguration(keyturn: app)
         let object = try #require(try JSONSerialization.jsonObject(with: Data(json.utf8)) as? [String: Any])
-        let server = try #require((object["mcpServers"] as? [String: Any])?["supabase-switch"] as? [String: Any])
+        let server = try #require((object["mcpServers"] as? [String: Any])?["keyturn"] as? [String: Any])
         #expect(server["command"] as? String == app)
         #expect(server["args"] as? [String] == ["mcp"])
     }

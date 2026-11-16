@@ -1,8 +1,8 @@
 import Foundation
 
-/// Registers `sbswitch mcp` in the AI tools that have their own command for it
+/// Registers `keyturn mcp` in the AI tools that have their own command for it
 /// (Claude Code, Codex), and writes the configuration for the ones edited by hand.
-/// Registra `sbswitch mcp` en las herramientas de IA que tienen su propia orden
+/// Registra `keyturn mcp` en las herramientas de IA que tienen su propia orden
 /// para ello (Claude Code, Codex), y escribe la configuración de las que se
 /// editan a mano.
 public struct AgentClient: Identifiable, Equatable, Sendable {
@@ -12,7 +12,7 @@ public struct AgentClient: Identifiable, Equatable, Sendable {
     /// Dónde suele estar la herramienta; después se prueba el PATH del shell.
     var candidates: [String]
     var command: String
-    var addArguments: @Sendable (_ sbswitch: String) -> [String]
+    var addArguments: @Sendable (_ keyturn: String) -> [String]
 
     public static func == (lhs: AgentClient, rhs: AgentClient) -> Bool { lhs.id == rhs.id }
 
@@ -38,8 +38,8 @@ public struct AgentClient: Identifiable, Equatable, Sendable {
 
     /// The command a person would type, quoted for zsh.
     /// La orden que escribiría una persona, entrecomillada para zsh.
-    public func commandLine(sbswitch: String) -> String {
-        ([command] + addArguments(sbswitch)).map(shellQuoted).joined(separator: " ")
+    public func commandLine(keyturn: String) -> String {
+        ([command] + addArguments(keyturn)).map(shellQuoted).joined(separator: " ")
     }
 
     /// The tool's executable, or nil when it is not installed.
@@ -55,8 +55,8 @@ public struct AgentClient: Identifiable, Equatable, Sendable {
         return path.hasPrefix("/") && FileManager.default.isExecutableFile(atPath: path) ? path : nil
     }
 
-    /// Whether the tool already has a server called "supabase-switch".
-    /// Si la herramienta ya tiene un servidor llamado «supabase-switch».
+    /// Whether the tool already has a server called "keyturn".
+    /// Si la herramienta ya tiene un servidor llamado «keyturn».
     public func isInstalled(executable: String) -> Bool {
         let result = try? ProcessRunner.run(executable, ["mcp", "get", Self.serverName], environment: Self.environment, timeout: 30, waitingFor: title)
         return result?.status == 0
@@ -64,9 +64,9 @@ public struct AgentClient: Identifiable, Equatable, Sendable {
 
     /// Adds the server, replacing an older entry that may point elsewhere.
     /// Añade el servidor, sustituyendo una entrada vieja que apunte a otro sitio.
-    public func install(executable: String, sbswitch: String) throws {
+    public func install(executable: String, keyturn: String) throws {
         if isInstalled(executable: executable) { try remove(executable: executable) }
-        let result = try ProcessRunner.run(executable, addArguments(sbswitch), environment: Self.environment, timeout: 30, waitingFor: title)
+        let result = try ProcessRunner.run(executable, addArguments(keyturn), environment: Self.environment, timeout: 30, waitingFor: title)
         guard result.status == 0 else { throw Self.failure(result, title) }
     }
 
@@ -77,8 +77,8 @@ public struct AgentClient: Identifiable, Equatable, Sendable {
 
     /// For Claude Desktop, Cursor, Windsurf and the rest edited by hand.
     /// Para Claude Desktop, Cursor, Windsurf y el resto que se editan a mano.
-    public static func jsonConfiguration(sbswitch: String) -> String {
-        let object: [String: Any] = ["mcpServers": [serverName: ["command": sbswitch, "args": ["mcp"]]]]
+    public static func jsonConfiguration(keyturn: String) -> String {
+        let object: [String: Any] = ["mcpServers": [serverName: ["command": keyturn, "args": ["mcp"]]]]
         let data = (try? JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes])) ?? Data()
         return String(decoding: data, as: UTF8.self)
     }

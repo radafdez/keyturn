@@ -1,9 +1,9 @@
 import Foundation
 
-/// Something worth counting: a switch, or one command run with `sbswitch run`.
+/// Something worth counting: a switch, or one command run with `keyturn run`.
 /// Only the account, the kind and the time are kept — never the command.
 ///
-/// Algo que merece contarse: un cambio, o una orden lanzada con `sbswitch run`.
+/// Algo que merece contarse: un cambio, o una orden lanzada con `keyturn run`.
 /// Solo se guardan la cuenta, el tipo y la hora; nunca la orden.
 public struct UsageEvent: Codable, Equatable, Sendable {
     public enum Kind: String, Codable, Sendable {
@@ -16,9 +16,9 @@ public struct UsageEvent: Codable, Equatable, Sendable {
     public enum Source: String, Codable, Sendable, CaseIterable {
         /// The menu bar app. / La app de la barra de menús.
         case menu
-        /// `sbswitch` typed in a terminal. / `sbswitch` escrito en una terminal.
+        /// `keyturn` typed in a terminal. / `keyturn` escrito en una terminal.
         case terminal
-        /// An AI agent through `sbswitch mcp`. / Un agente de IA a través de `sbswitch mcp`.
+        /// An AI agent through `keyturn mcp`. / Un agente de IA a través de `keyturn mcp`.
         case agent
     }
 

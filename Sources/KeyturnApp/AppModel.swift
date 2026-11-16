@@ -119,14 +119,14 @@ final class AppModel: ObservableObject {
         accounts.first { $0.id == id }?.name ?? tr("a removed account", "una cuenta quitada")
     }
 
-    /// The `sbswitch` inside this app, which is what the agents run.
-    /// El `sbswitch` de dentro de esta app, que es lo que ejecutan los agentes.
-    var sbswitchPath: String {
+    /// The `keyturn` inside this app, which is what the agents run.
+    /// El `keyturn` de dentro de esta app, que es lo que ejecutan los agentes.
+    var keyturnPath: String {
         // The demo shows the usual place, not the folder it was built in.
         // La demo enseña el sitio habitual, no la carpeta donde se compiló.
-        if Demo.isOn { return "/Applications/Supabase Switch.app/Contents/MacOS/sbswitch" }
-        let besideTheApp = Bundle.main.executableURL?.deletingLastPathComponent().appendingPathComponent("sbswitch")
-        return besideTheApp?.path ?? "/Applications/Supabase Switch.app/Contents/MacOS/sbswitch"
+        if Demo.isOn { return "/Applications/Keyturn.app/Contents/MacOS/keyturn" }
+        let besideTheApp = Bundle.main.executableURL?.deletingLastPathComponent().appendingPathComponent("keyturn")
+        return besideTheApp?.path ?? "/Applications/Keyturn.app/Contents/MacOS/keyturn"
     }
 
     var stateFileURL: URL { FileStateStore.standard().url }
@@ -249,7 +249,7 @@ final class AppModel: ObservableObject {
     }
 
     func connect(_ client: AgentClient) {
-        change(client) { [sbswitch = sbswitchPath] in try client.install(executable: $0, sbswitch: sbswitch) }
+        change(client) { [keyturn = keyturnPath] in try client.install(executable: $0, keyturn: keyturn) }
     }
 
     func disconnect(_ client: AgentClient) {
@@ -342,11 +342,11 @@ final class AppModel: ObservableObject {
         return created
     }
 
-    /// `sbswitch` writes the same file from a terminal or an agent. Watching
+    /// `keyturn` writes the same file from a terminal or an agent. Watching
     /// its folder (the file is replaced on every save, so the file itself
     /// cannot be watched) puts those switches on screen at once.
     ///
-    /// `sbswitch` escribe el mismo fichero desde una terminal o un agente.
+    /// `keyturn` escribe el mismo fichero desde una terminal o un agente.
     /// Vigilar su carpeta (el fichero se sustituye en cada guardado, así que no
     /// se puede vigilar él mismo) pone esos cambios en pantalla al momento.
     private func watchTheStateFile() {

@@ -30,15 +30,15 @@ sign_update=".build/artifacts/sparkle/Sparkle/bin/sign_update"
 scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 ditto -x -k "$zip" "$scratch"
-plist="$scratch/Supabase Switch.app/Contents/Info.plist"
+plist="$scratch/Keyturn.app/Contents/Info.plist"
 read_key() { /usr/libexec/PlistBuddy -c "Print $1" "$plist"; }
 version="$(read_key CFBundleShortVersionString)"
 build="$(read_key CFBundleVersion)"
 minimum="$(read_key LSMinimumSystemVersion)"
 public_key="$(read_key SUPublicEDKey 2>/dev/null)" || { echo "The app in $zip has no SUPublicEDKey: it could never check an update" >&2; exit 1; }
 
-url="${3:-https://github.com/radafdez/supabase-switch/releases/download/v$version/$(basename "$zip")}"
-release="https://github.com/radafdez/supabase-switch/releases/tag/v$version"
+url="${3:-https://github.com/radafdez/keyturn/releases/download/v$version/$(basename "$zip")}"
+release="https://github.com/radafdez/keyturn/releases/tag/v$version"
 grep -q ']]>' "$notes" && { echo "$notes contains ]]>, which would end the CDATA block" >&2; exit 1; }
 
 signature="$(printf '%s' "$SPARKLE_PRIVATE_KEY" | "$sign_update" --ed-key-file - "$zip")"
@@ -54,10 +54,10 @@ cat > appcast.xml <<XML
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
   <channel>
-    <title>Supabase Switch</title>
-    <link>https://github.com/radafdez/supabase-switch</link>
+    <title>Keyturn</title>
+    <link>https://github.com/radafdez/keyturn</link>
     <item>
-      <title>Supabase Switch $version</title>
+      <title>Keyturn $version</title>
       <pubDate>$(LC_ALL=C date -u "+%a, %d %b %Y %H:%M:%S +0000")</pubDate>
       <sparkle:version>$build</sparkle:version>
       <sparkle:shortVersionString>$version</sparkle:shortVersionString>

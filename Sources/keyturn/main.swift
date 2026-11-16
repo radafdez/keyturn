@@ -3,50 +3,50 @@ import SwitchCore
 
 let usage = tr(
     """
-    sbswitch \(switchVersion) — switch the account the Supabase CLI works with
+    keyturn \(switchVersion) — switch the account the Supabase CLI works with
 
-      sbswitch                          list the accounts and mark the one in use
-      sbswitch use <account>            switch the CLI to that account
-      sbswitch current                  say which account the CLI is on now
-      sbswitch capture [name]           register the account the CLI is logged in as
-      sbswitch add [name]               register an account from its access token
+      keyturn                          list the accounts and mark the one in use
+      keyturn use <account>            switch the CLI to that account
+      keyturn current                  say which account the CLI is on now
+      keyturn capture [name]           register the account the CLI is logged in as
+      keyturn add [name]               register an account from its access token
                                         (asked without echo, or read from stdin)
-      sbswitch refresh [account]        read the projects of one account again, or of all
-      sbswitch rename <account> <new name>
-      sbswitch alias <project> [alias]  give a project a local name; without one, go back
+      keyturn refresh [account]        read the projects of one account again, or of all
+      keyturn rename <account> <new name>
+      keyturn alias <project> [alias]  give a project a local name; without one, go back
                                         to its Supabase name
-      sbswitch remove <account>
-      sbswitch stats                    switches and runs per account
-      sbswitch run <account> -- <cmd>   run one command as that account without switching
-      sbswitch mcp                      MCP server for AI agents (Claude Code, Codex, Cursor…):
-                                        claude mcp add --scope user supabase-switch -- sbswitch mcp
-      sbswitch version
+      keyturn remove <account>
+      keyturn stats                    switches and runs per account
+      keyturn run <account> -- <cmd>   run one command as that account without switching
+      keyturn mcp                      MCP server for AI agents (Claude Code, Codex, Cursor…):
+                                        claude mcp add --scope user keyturn -- keyturn mcp
+      keyturn version
 
     <account> is its name, the start of its name, or the ref, name or alias of
-    one of its projects: `sbswitch use abcdefghijklmnopqrst` works like `sbswitch use acme`.
+    one of its projects: `keyturn use abcdefghijklmnopqrst` works like `keyturn use acme`.
     """,
     """
-    sbswitch \(switchVersion) — cambia la cuenta con la que trabaja el CLI de Supabase
+    keyturn \(switchVersion) — cambia la cuenta con la que trabaja el CLI de Supabase
 
-      sbswitch                          lista las cuentas y marca la que está en uso
-      sbswitch use <cuenta>             cambia el CLI a esa cuenta
-      sbswitch current                  dice qué cuenta tiene el CLI ahora
-      sbswitch capture [nombre]         registra la cuenta con la que el CLI está logueado
-      sbswitch add [nombre]             registra una cuenta con su token (lo pide sin
+      keyturn                          lista las cuentas y marca la que está en uso
+      keyturn use <cuenta>             cambia el CLI a esa cuenta
+      keyturn current                  dice qué cuenta tiene el CLI ahora
+      keyturn capture [nombre]         registra la cuenta con la que el CLI está logueado
+      keyturn add [nombre]             registra una cuenta con su token (lo pide sin
                                         mostrarlo, o lo lee de la entrada estándar)
-      sbswitch refresh [cuenta]         vuelve a leer los proyectos de una cuenta, o de todas
-      sbswitch rename <cuenta> <nombre nuevo>
-      sbswitch alias <proyecto> [alias] da a un proyecto un nombre local; sin alias, vuelve
+      keyturn refresh [cuenta]         vuelve a leer los proyectos de una cuenta, o de todas
+      keyturn rename <cuenta> <nombre nuevo>
+      keyturn alias <proyecto> [alias] da a un proyecto un nombre local; sin alias, vuelve
                                         a su nombre de Supabase
-      sbswitch remove <cuenta>
-      sbswitch stats                    cambios y órdenes por cuenta
-      sbswitch run <cuenta> -- <orden>  lanza una orden con esa cuenta sin cambiar el CLI
-      sbswitch mcp                      servidor MCP para agentes de IA (Claude Code, Codex, Cursor…):
-                                        claude mcp add --scope user supabase-switch -- sbswitch mcp
-      sbswitch version
+      keyturn remove <cuenta>
+      keyturn stats                    cambios y órdenes por cuenta
+      keyturn run <cuenta> -- <orden>  lanza una orden con esa cuenta sin cambiar el CLI
+      keyturn mcp                      servidor MCP para agentes de IA (Claude Code, Codex, Cursor…):
+                                        claude mcp add --scope user keyturn -- keyturn mcp
+      keyturn version
 
     <cuenta> es su nombre, el principio del nombre, o el ref, el nombre o el alias de
-    uno de sus proyectos: `sbswitch use abcdefghijklmnopqrst` vale igual que `sbswitch use acme`.
+    uno de sus proyectos: `keyturn use abcdefghijklmnopqrst` vale igual que `keyturn use acme`.
     """
 )
 
@@ -63,8 +63,8 @@ func describe(_ session: SessionStatus, in accounts: [Account]) -> String {
         let name = accounts.first { $0.id == id }?.name ?? "?"
         return tr("The CLI is on “\(name)”.", "El CLI está en «\(name)».")
     case .unregistered:
-        return tr("The CLI is logged in as an account not registered here. Register it with `sbswitch capture`.",
-                  "El CLI está en una cuenta que no está registrada aquí. Regístrala con `sbswitch capture`.")
+        return tr("The CLI is logged in as an account not registered here. Register it with `keyturn capture`.",
+                  "El CLI está en una cuenta que no está registrada aquí. Regístrala con `keyturn capture`.")
     case .unverified(let detail):
         return tr("There is a login, but I could not check whose it is: \(detail)",
                   "Hay una sesión, pero no pude comprobar de quién es: \(detail)")
@@ -121,7 +121,7 @@ func main() throws {
         return
     }
     if ["version", "-v", "--version"].contains(command) {
-        print("sbswitch \(switchVersion)")
+        print("keyturn \(switchVersion)")
         return
     }
 
@@ -144,7 +144,7 @@ func main() throws {
     case "list", "ls":
         let snapshot = try service.snapshot()
         if snapshot.accounts.isEmpty {
-            print(tr("No accounts yet. Start with `sbswitch capture`.", "Aún no hay cuentas. Empieza por `sbswitch capture`."))
+            print(tr("No accounts yet. Start with `keyturn capture`.", "Aún no hay cuentas. Empieza por `keyturn capture`."))
         }
         for item in snapshot.accounts {
             printAccount(item, active: snapshot.activeAccount?.id == item.id)

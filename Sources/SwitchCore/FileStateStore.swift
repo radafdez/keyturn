@@ -11,7 +11,7 @@ public struct FileStateStore: StateStore {
 
     public static func standard() -> FileStateStore {
         let support = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        return FileStateStore(url: support.appendingPathComponent("SupabaseSwitch/accounts.json"))
+        return FileStateStore(url: support.appendingPathComponent("Keyturn/accounts.json"))
     }
 
     public func load() throws -> SwitchState {

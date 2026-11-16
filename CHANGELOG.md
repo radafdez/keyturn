@@ -9,6 +9,10 @@ All notable changes to this project are documented here. The format follows
 ## [1.4.0] - 2026-11-16
 
 ### Changed
+- A new name: **Keyturn**. The command is now `keyturn`, the cask
+  `radafdez/tap/keyturn`, and the repository `radafdez/keyturn`. It is a clean
+  break: accounts live under the new name in the Keychain and in a new data
+  folder, so add them again, and reconnect the AI agents from Settings.
 - A new icon: two arrows going round a bolt, on a charcoal tile. The menu bar
   shows the same symbol in place of the plain bolt, black or white to match the
   bar.
@@ -17,13 +21,18 @@ All notable changes to this project are documented here. The format follows
 - `brand/`: the symbol as SVG (logos, app icons, favicons, one-colour
   versions), for anyone writing about the app.
 
+### Fixed
+- `scripts/try-update.sh` turned the signed-feed checks off in its test copies,
+  so its "edited feed" step proved nothing. It now keeps them on and checks
+  they are on. The released app always had them on.
+
 ## [1.3.2] - 2026-11-16
 
 ### Fixed
 
 - 1.3.1 said a copy installed with Homebrew lifts the quarantine from its own
   files once opened. It cannot: macOS does not let a quarantined app remove the
-  mark, so `sbswitch` and the MCP server stayed blocked. Now Settings → AI
+  mark, so `keyturn` and the MCP server stayed blocked. Now Settings → AI
   Agents says so and gives the Terminal command that removes it, and the
   README and the cask explain it after `brew install`.
 
@@ -31,8 +40,8 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
-- Install with Homebrew: `brew install --cask radafdez/tap/supabase-switch`.
-  It also links `sbswitch`.
+- Install with Homebrew: `brew install --cask radafdez/tap/keyturn`.
+  It also links `keyturn`.
 
 ### Changed
 
@@ -40,7 +49,7 @@ All notable changes to this project are documented here. The format follows
   zip. `brew upgrade` leaves them alone, so macOS does not block the app again
   after every upgrade.
 - Once you have opened it, a copy installed with Homebrew lifts the quarantine
-  from its own files. Without that, macOS would stop `sbswitch` and the MCP
+  from its own files. Without that, macOS would stop `keyturn` and the MCP
   server without asking, even after you approved the app.
 
 ## [1.3.0] - 2026-11-16
@@ -66,7 +75,7 @@ All notable changes to this project are documented here. The format follows
 
 ### Added
 
-- `sbswitch mcp`: a Model Context Protocol server, so AI agents (Claude Code,
+- `keyturn mcp`: a Model Context Protocol server, so AI agents (Claude Code,
   Codex, Cursor, Claude Desktop…) can list the accounts and put the CLI on the
   one that owns a project. Four tools: `list_accounts`, `current_account`,
   `use_project` and `switch_account`. Agents never see a token.
@@ -81,8 +90,8 @@ All notable changes to this project are documented here. The format follows
 - Switches made from a terminal or an agent show up in the app at once.
 - Choose the language in Settings instead of following the system.
 - An app icon.
-- `SUPABASE_SWITCH_DEMO=1` (made-up accounts in memory) and
-  `SUPABASE_SWITCH_SNAPSHOTS=<folder>` (draws the screenshots).
+- `KEYTURN_DEMO=1` (made-up accounts in memory) and
+  `KEYTURN_SNAPSHOTS=<folder>` (draws the screenshots).
 
 ### Changed
 
@@ -94,7 +103,7 @@ All notable changes to this project are documented here. The format follows
 
 ### Fixed
 
-- The app and `sbswitch` are universal binaries: they now run on Intel Macs
+- The app and `keyturn` are universal binaries: they now run on Intel Macs
   too (1.1.0 was Apple Silicon only).
 - `scripts/test.sh` runs the tests on Macs with Xcode installed.
 
@@ -106,11 +115,11 @@ First public release.
 
 - Rename an account right in its row, or from its right-click menu.
 - Local aliases for projects, kept when the projects are read again;
-  `sbswitch alias`. Accounts can be found by a project's alias.
-- Basic statistics: switches and `sbswitch run` commands per account, this
-  week, and last use; in the menu and with `sbswitch stats`.
+  `keyturn alias`. Accounts can be found by a project's alias.
+- Basic statistics: switches and `keyturn run` commands per account, this
+  week, and last use; in the menu and with `keyturn stats`.
 - English interface, chosen from the system language (Spanish stays available).
-- `sbswitch version`.
+- `keyturn version`.
 
 ### Changed
 
@@ -119,6 +128,6 @@ First public release.
 
 ## [1.0.0] - 2026-11-15
 
-- Menu bar app and `sbswitch`: register accounts by capturing the CLI's login or
+- Menu bar app and `keyturn`: register accounts by capturing the CLI's login or
   from an access token, switch with one click, copy project refs, run one
   command as another account.

@@ -11,7 +11,7 @@ permissions:
 jobs:
   build-and-test:
     # Apple Silicon and Intel: the tests run natively on each, and each runs
-    # the universal sbswitch on its own architecture.
+    # the universal keyturn on its own architecture.
     strategy:
       fail-fast: false
       matrix:
@@ -29,12 +29,12 @@ jobs:
         run: ./scripts/build-app.sh
       - name: Check the binaries are universal
         run: |
-          for binary in dist/sbswitch "dist/Supabase Switch.app/Contents/MacOS/SupabaseSwitch" "dist/Supabase Switch.app/Contents/MacOS/sbswitch"; do
+          for binary in dist/keyturn "dist/Keyturn.app/Contents/MacOS/KeyturnApp" "dist/Keyturn.app/Contents/MacOS/keyturn"; do
             echo "$(lipo -archs "$binary")  $binary"
             lipo "$binary" -verify_arch arm64
             lipo "$binary" -verify_arch x86_64
           done
-      - name: Smoke test sbswitch
+      - name: Smoke test keyturn
         run: |
-          dist/sbswitch version
-          dist/sbswitch help
+          dist/keyturn version
+          dist/keyturn help

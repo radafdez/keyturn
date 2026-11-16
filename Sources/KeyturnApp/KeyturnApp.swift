@@ -3,7 +3,7 @@ import SwiftUI
 import SwitchCore
 
 @main
-struct SupabaseSwitchApp: App {
+struct Keyturn: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @StateObject private var model = AppModel()
     // Started with the app, so a scheduled check does not wait for a window.
@@ -23,7 +23,7 @@ struct SupabaseSwitchApp: App {
         }
         .menuBarExtraStyle(.window)
 
-        Window(tr("Supabase Switch Settings", "Ajustes de Supabase Switch"), id: SettingsView.windowID) {
+        Window(tr("Keyturn Settings", "Ajustes de Keyturn"), id: SettingsView.windowID) {
             SettingsView(model: model)
         }
         .defaultSize(width: 760, height: 540)
@@ -37,7 +37,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Sin icono en el Dock, también si se lanza fuera del bundle.
         NSApp.setActivationPolicy(.accessory)
         NSApp.mainMenu = Self.editMenu()
-        if let folder = ProcessInfo.processInfo.environment["SUPABASE_SWITCH_SNAPSHOTS"] {
+        if let folder = ProcessInfo.processInfo.environment["KEYTURN_SNAPSHOTS"] {
             Task { @MainActor in
                 await Snapshots.render(into: URL(fileURLWithPath: folder))
                 NSApp.terminate(nil)
@@ -77,7 +77,7 @@ enum MenuBarIcon {
     static let image: NSImage? = {
         guard let image = Bundle.main.image(forResource: "MenuBarIcon") else { return nil }
         image.isTemplate = true
-        image.accessibilityDescription = "Supabase Switch"
+        image.accessibilityDescription = "Keyturn"
         return image
     }()
 }

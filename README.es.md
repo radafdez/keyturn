@@ -1,6 +1,6 @@
-<img src="Resources/AppIcon.png" width="128" alt="Icono de Supabase Switch">
+<img src="Resources/AppIcon.png" width="128" alt="Icono de Keyturn">
 
-# Supabase Switch
+# Keyturn
 
 **Cambia la cuenta con la que trabaja el CLI de Supabase: un clic en la barra de menús, sin navegador.**
 
@@ -11,10 +11,10 @@
 El CLI `supabase` guarda una sola sesión. Si tus proyectos viven en varias
 cuentas de Supabase —una por cliente, la personal y la del trabajo—, cada cambio
 es `supabase logout`, `supabase login`, una pestaña del navegador y un código.
-Supabase Switch guarda un token de acceso por cuenta en el Llavero de macOS y le
+Keyturn guarda un token de acceso por cuenta en el Llavero de macOS y le
 da al CLI el que toca cuando haces clic.
 
-- **Un clic** en la barra de menús, o `sbswitch use acme` en la terminal.
+- **Un clic** en la barra de menús, o `keyturn use acme` en la terminal.
 - **Tu agente de IA cambia por ti**: Claude Code, Codex, Cursor y cualquier
   otro cliente MCP pueden llamar a `use_project` antes de ejecutar `supabase`.
   Cada cambio queda registrado con quién lo pidió, y se puede apagar. Ver
@@ -27,7 +27,7 @@ da al CLI el que toca cuando haces clic.
   una terminal o qué agente), y las cuentas por cuenta, por origen y por
   agente. Solo en tu Mac.
 - **Una orden suelta con otra cuenta** sin cambiar:
-  `sbswitch run globex -- supabase migration list`.
+  `keyturn run globex -- supabase migration list`.
 - **Se entera de los logins hechos fuera**: un `supabase login` en una terminal
   aparece en el menú en 30 segundos como mucho.
 - **Ventana de ajustes** (⌘, desde el menú): cuentas, agentes, actividad,
@@ -45,40 +45,40 @@ da al CLI el que toca cuando haces clic.
 ## Instalar
 
 ```bash
-git clone https://github.com/radafdez/supabase-switch.git
-cd supabase-switch
+git clone https://github.com/radafdez/keyturn.git
+cd keyturn
 ./scripts/build-app.sh --install
 ```
 
-Compila la app, la copia a `/Applications`, enlaza `sbswitch` junto al CLI de
+Compila la app, la copia a `/Applications`, enlaza `keyturn` junto al CLI de
 Supabase y la abre. Aparece un rayo en la barra de menús.
 
 Con Homebrew:
 
 ```bash
-brew install --cask radafdez/tap/supabase-switch
+brew install --cask radafdez/tap/keyturn
 ```
 
-Instala la app en `/Applications` y enlaza `sbswitch`. Al nombrar el tap
+Instala la app en `/Applications` y enlaza `keyturn`. Al nombrar el tap
 completo solo se confía en este cask, no en el resto del tap.
 
 La app **no está notarizada**, y Homebrew la instala en cuarentena. macOS para
-entonces `sbswitch`, y con él el servidor MCP que usan los agentes, sin
+entonces `keyturn`, y con él el servidor MCP que usan los agentes, sin
 preguntar, y la app no puede quitarse la marca sola. Ejecuta esto una vez tras
 instalar:
 
 ```bash
-xattr -dr com.apple.quarantine "/Applications/Supabase Switch.app"
+xattr -dr com.apple.quarantine "/Applications/Keyturn.app"
 ```
 
 Ajustes → Agentes de IA muestra la misma orden mientras haga falta. Si la
 propia app se bloquea al abrirla, esa orden también lo resuelve; o pulsa
 **Abrir igualmente** en **Ajustes del Sistema → Privacidad y seguridad**.
 Después se actualiza sola, y `brew upgrade` no la
-toca. Para quitarla, `brew uninstall --cask supabase-switch`; con `--zap` borra
+toca. Para quitarla, `brew uninstall --cask keyturn`; con `--zap` borra
 también tu lista de cuentas y tus ajustes (los tokens siguen en el Llavero).
 
-Las versiones publicadas en [Releases](https://github.com/radafdez/supabase-switch/releases)
+Las versiones publicadas en [Releases](https://github.com/radafdez/keyturn/releases)
 **no están notarizadas** por Apple: la primera vez macOS la bloquea. Ábrela una
 vez y pulsa **Abrir igualmente** en **Ajustes del Sistema → Privacidad y
 seguridad**. Si prefieres no hacerlo, compílala: tarda un minuto.
@@ -119,7 +119,7 @@ lápiz junto a un proyecto le pone un nombre local.
 
 ## Agentes de IA (MCP)
 
-`sbswitch mcp` es un servidor del [Model Context Protocol](https://modelcontextprotocol.io)
+`keyturn mcp` es un servidor del [Model Context Protocol](https://modelcontextprotocol.io)
 por stdio. Un agente que está trabajando en una funcionalidad puede preguntar
 en qué cuenta está el CLI y cambiarlo a la dueña del proyecto, sin que salgas
 de la conversación.
@@ -135,11 +135,11 @@ de la conversación.
 otro para Codex (ejecutan `claude mcp add` / `codex mcp add` por ti). O a mano:
 
 ```bash
-claude mcp add --scope user supabase-switch -- "/Applications/Supabase Switch.app/Contents/MacOS/sbswitch" mcp
+claude mcp add --scope user keyturn -- "/Applications/Keyturn.app/Contents/MacOS/keyturn" mcp
 ```
 
 ```bash
-codex mcp add supabase-switch -- "/Applications/Supabase Switch.app/Contents/MacOS/sbswitch" mcp
+codex mcp add keyturn -- "/Applications/Keyturn.app/Contents/MacOS/keyturn" mcp
 ```
 
 Para Claude Desktop, Cursor, Windsurf y las demás que se configuran con JSON,
@@ -160,16 +160,16 @@ Qué pueden hacer los agentes y qué no:
 
 <img src="docs/settings-activity-es.png" width="420" alt="Actividad: cada cambio con quién lo pidió">
 
-## `sbswitch`
+## `keyturn`
 
-Las órdenes son las mismas que en el [README en inglés](README.md#sbswitch);
-`sbswitch help` las explica en el idioma del sistema.
+Las órdenes son las mismas que en el [README en inglés](README.md#keyturn);
+`keyturn help` las explica en el idioma del sistema.
 
 ## Seguridad y privacidad
 
 - Los tokens solo están en el Llavero de macOS: nunca en un fichero, nunca en
   los argumentos de un proceso.
-- `~/Library/Application Support/SupabaseSwitch/accounts.json` guarda nombres,
+- `~/Library/Application Support/Keyturn/accounts.json` guarda nombres,
   refs, regiones, tus alias y el historial de uso (cuenta, tipo y hora; nunca la
   orden). Nada secreto.
 - **Sin telemetría.** De tu Mac no sale nada más que lo que el propio CLI le
@@ -191,6 +191,6 @@ Para informar de una vulnerabilidad, ver [SECURITY.md](SECURITY.md).
 
 ---
 
-Supabase Switch es un proyecto independiente, sin relación con Supabase Inc. ni
+Keyturn es un proyecto independiente, sin relación con Supabase Inc. ni
 respaldado por ella. Supabase es una marca de Supabase Inc. La app no usa el
 logo de Supabase.

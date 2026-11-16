@@ -1,6 +1,6 @@
 # Brand
 
-The Supabase Switch symbol: two arrows going round a bolt, the account switching
+The Keyturn symbol: two arrows going round a bolt, the account switching
 over. Every file is a plain SVG with no text, fonts, scripts or embedded images.
 
 | Folder | What is in it |
@@ -31,7 +31,7 @@ to the Supabase logo in a way that suggests the app comes from Supabase.
 
 ## Español
 
-El símbolo de Supabase Switch: dos flechas que giran alrededor de un rayo, la
+El símbolo de Keyturn: dos flechas que giran alrededor de un rayo, la
 cuenta que cambia. Todos los ficheros son SVG sin texto, fuentes, scripts ni
 imágenes incrustadas. Los iconos de la app salen de la misma geometría con
 `scripts/make-icon.swift`, que coloca el símbolo en la rejilla de iconos de

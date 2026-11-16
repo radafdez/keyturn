@@ -315,8 +315,8 @@ import Testing
     }
 
     /// Touches the real login Keychain, in this app's own service only.
-    /// Run with SBSWITCH_LIVE_KEYCHAIN=1.
-    @Test(.enabled(if: ProcessInfo.processInfo.environment["SBSWITCH_LIVE_KEYCHAIN"] == "1"))
+    /// Run with KEYTURN_LIVE_KEYCHAIN=1.
+    @Test(.enabled(if: ProcessInfo.processInfo.environment["KEYTURN_LIVE_KEYCHAIN"] == "1"))
     func theRealKeychainStoresReplacesAndDeletes() throws {
         let keychain = SecurityToolKeychain()
         let slot = KeychainSlot.stored(UUID())

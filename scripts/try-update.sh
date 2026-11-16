@@ -21,7 +21,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-id="com.raisapp.supabase-switch.updatetest"
+id="com.raisapp.keyturn.updatetest"
 port="${PORT:-8765}"
 work="$(mktemp -d)"
 server=""
@@ -34,7 +34,7 @@ cleanup() {
 trap cleanup EXIT
 quiet() { grep -v libSwiftScan || true; }
 
-[ -d "dist/Supabase Switch.app" ] || ./scripts/build-app.sh
+[ -d "dist/Keyturn.app" ] || ./scripts/build-app.sh
 
 # A throwaway key pair, in files. / Un par de claves de usar y tirar, en ficheros.
 cat > "$work/keys.swift" <<'SWIFT'
@@ -49,24 +49,32 @@ private_key="$(sed -n 1p <<< "$keys")"
 public_key="$(sed -n 2p <<< "$keys")"
 
 copy() { # <folder> <version> <build>
-  local app="$1/Supabase Switch.app" plist="$1/Supabase Switch.app/Contents/Info.plist"
+  local app="$1/Keyturn.app" plist="$1/Keyturn.app/Contents/Info.plist"
   rm -rf "$1"; mkdir -p "$1"
-  ditto "dist/Supabase Switch.app" "$app"
-  for command in "Set :CFBundleShortVersionString $2" "Set :CFBundleVersion $3" "Set :CFBundleIdentifier $id" \
-                 "Add :SupabaseSwitchDemo bool true" "Delete :SUFeedURL" "Delete :SUPublicEDKey"; do
-    /usr/libexec/PlistBuddy -c "$command" "$plist" 2> /dev/null || true
+  ditto "dist/Keyturn.app" "$app"
+  for command in "Set :CFBundleShortVersionString $2" "Set :CFBundleVersion $3" "Set :CFBundleIdentifier $id"; do
+    /usr/libexec/PlistBuddy -c "$command" "$plist"
   done
-  for command in "Add :SUFeedURL string http://127.0.0.1:$port/appcast.xml" "Add :SUPublicEDKey string $public_key" \
-                 "Add :SURequireSignedFeed bool true" "Add :SUVerifyUpdateBeforeExtraction bool true" \
-                 "Add :SUEnableAutomaticChecks bool true" "Add :SUAutomaticallyUpdate bool true"; do
-    /usr/libexec/PlistBuddy -c "$command" "$plist" 2> /dev/null || /usr/libexec/PlistBuddy -c "${command/Add/Set}" "$plist" 2> /dev/null || true
+  # Delete, then add: `Set :Key bool true` would store false, quietly turning
+  # the protections under test off. / Borrar y añadir: `Set :Clave bool true`
+  # guardaría false y apagaría sin avisar las protecciones que se prueban.
+  local entry
+  for entry in "KeyturnDemo bool true" "SUFeedURL string http://127.0.0.1:$port/appcast.xml" \
+               "SUPublicEDKey string $public_key" "SURequireSignedFeed bool true" \
+               "SUVerifyUpdateBeforeExtraction bool true" "SUEnableAutomaticChecks bool true" \
+               "SUAutomaticallyUpdate bool true"; do
+    /usr/libexec/PlistBuddy -c "Delete :${entry%% *}" "$plist" 2> /dev/null || true
+    /usr/libexec/PlistBuddy -c "Add :$entry" "$plist"
+  done
+  for entry in SURequireSignedFeed SUVerifyUpdateBeforeExtraction; do
+    [ "$(/usr/libexec/PlistBuddy -c "Print :$entry" "$plist")" = true ] || { echo "   FAIL: $entry is off in the copy"; exit 1; }
   done
   codesign --force --sign - "$app" 2> /dev/null
 }
-installed() { /usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$work/installed/Supabase Switch.app/Contents/Info.plist"; }
+installed() { /usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" "$work/installed/Keyturn.app/Contents/Info.plist"; }
 round() { # Opens the installed copy, lets Sparkle check, quits it so an update installs.
   defaults delete "$id" SULastCheckTime 2> /dev/null || true
-  open "$work/installed/Supabase Switch.app"
+  open "$work/installed/Keyturn.app"
   sleep 40
   osascript -e "quit app id \"$id\"" 2> /dev/null || true
   sleep 15
@@ -81,8 +89,8 @@ mkdir -p "$work/served"
 printf '### Added\n\n- A test update.\n' > "$work/notes.md"
 copy "$work/installed" 9.0.0 1000
 copy "$work/new" 9.0.1 1001
-(cd "$work/new" && ditto -c -k --keepParent "Supabase Switch.app" "$work/served/Supabase-Switch-9.0.1.zip")
-publish "$work/served/Supabase-Switch-9.0.1.zip"
+(cd "$work/new" && ditto -c -k --keepParent "Keyturn.app" "$work/served/Keyturn-9.0.1.zip")
+publish "$work/served/Keyturn-9.0.1.zip"
 (cd "$work/served" && exec python3 -m http.server "$port" --bind 127.0.0.1 > /dev/null 2>&1) &
 server=$!
 sleep 1
@@ -90,27 +98,27 @@ sleep 1
 echo "1. A genuine update, 9.0.0 → 9.0.1"
 round
 [ "$(installed)" = 9.0.1 ] || { echo "   FAIL: still $(installed)"; exit 1; }
-xattr -lr "$work/installed/Supabase Switch.app" | grep -q quarantine && { echo "   FAIL: the update is quarantined"; exit 1; }
-codesign --verify --deep --strict "$work/installed/Supabase Switch.app"
+xattr -lr "$work/installed/Keyturn.app" | grep -q quarantine && { echo "   FAIL: the update is quarantined"; exit 1; }
+codesign --verify --deep --strict "$work/installed/Keyturn.app"
 echo "   ok: 9.0.1 installed, signature valid, nothing quarantined"
 
 echo "2. A feed edited after it was signed"
 copy "$work/new" 9.0.2 1002
-rm -f "$work/served/Supabase-Switch-9.0.2.zip"
-(cd "$work/new" && ditto -c -k --keepParent "Supabase Switch.app" "$work/served/Supabase-Switch-9.0.2.zip")
-publish "$work/served/Supabase-Switch-9.0.2.zip"
+rm -f "$work/served/Keyturn-9.0.2.zip"
+(cd "$work/new" && ditto -c -k --keepParent "Keyturn.app" "$work/served/Keyturn-9.0.2.zip")
+publish "$work/served/Keyturn-9.0.2.zip"
 cp "$work/served/appcast.xml" "$work/appcast-good.xml"
-sed -i '' 's/Supabase Switch 9.0.2</Supabase Switch 9.0.2 (edited)</' "$work/served/appcast.xml"
+sed -i '' 's/Keyturn 9.0.2</Keyturn 9.0.2 (edited)</' "$work/served/appcast.xml"
 round
 [ "$(installed)" = 9.0.1 ] || { echo "   FAIL: the edited feed installed $(installed)"; exit 1; }
 echo "   ok: refused"
 
 echo "3. A valid feed, but the zip was swapped"
 cp "$work/appcast-good.xml" "$work/served/appcast.xml"
-echo swapped > "$work/new/Supabase Switch.app/Contents/Resources/swapped.txt"
-codesign --force --sign - "$work/new/Supabase Switch.app" 2> /dev/null
-rm -f "$work/served/Supabase-Switch-9.0.2.zip"
-(cd "$work/new" && ditto -c -k --keepParent "Supabase Switch.app" "$work/served/Supabase-Switch-9.0.2.zip")
+echo swapped > "$work/new/Keyturn.app/Contents/Resources/swapped.txt"
+codesign --force --sign - "$work/new/Keyturn.app" 2> /dev/null
+rm -f "$work/served/Keyturn-9.0.2.zip"
+(cd "$work/new" && ditto -c -k --keepParent "Keyturn.app" "$work/served/Keyturn-9.0.2.zip")
 round
 [ "$(installed)" = 9.0.1 ] || { echo "   FAIL: the swapped zip installed $(installed)"; exit 1; }
 echo "   ok: refused"

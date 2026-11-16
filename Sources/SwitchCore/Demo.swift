@@ -2,20 +2,20 @@ import Foundation
 
 /// Three made-up accounts that live only in memory: no file, no Keychain, no
 /// CLI. For screenshots and for trying the app without touching real logins.
-/// `SUPABASE_SWITCH_DEMO=1` turns it on, and so does `SupabaseSwitchDemo` in
+/// `KEYTURN_DEMO=1` turns it on, and so does `KeyturnDemo` in
 /// the Info.plist: a copy built to try an update, which Sparkle relaunches
 /// without the environment.
 ///
 /// Tres cuentas inventadas que viven solo en memoria: ni fichero, ni Llavero,
 /// ni CLI. Para capturas de pantalla y para probar la app sin tocar sesiones
-/// reales. Se enciende con `SUPABASE_SWITCH_DEMO=1`, y también con
-/// `SupabaseSwitchDemo` en el Info.plist: una copia hecha para probar una
+/// reales. Se enciende con `KEYTURN_DEMO=1`, y también con
+/// `KeyturnDemo` en el Info.plist: una copia hecha para probar una
 /// actualización, que Sparkle vuelve a abrir sin el entorno.
 public enum Demo {
     public static var isOn: Bool {
         let environment = ProcessInfo.processInfo.environment
-        return environment["SUPABASE_SWITCH_DEMO"] == "1" || environment["SUPABASE_SWITCH_SNAPSHOTS"] != nil
-            || Bundle.main.object(forInfoDictionaryKey: "SupabaseSwitchDemo") as? Bool == true
+        return environment["KEYTURN_DEMO"] == "1" || environment["KEYTURN_SNAPSHOTS"] != nil
+            || Bundle.main.object(forInfoDictionaryKey: "KeyturnDemo") as? Bool == true
     }
 
     public static func service(now: Date = Date()) -> SwitchService {

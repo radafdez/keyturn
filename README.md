@@ -1,6 +1,6 @@
-<img src="Resources/AppIcon.png" width="128" alt="Supabase Switch icon">
+<img src="Resources/AppIcon.png" width="128" alt="Keyturn icon">
 
-# Supabase Switch
+# Keyturn
 
 **Switch the account the Supabase CLI is logged in as — one click in the menu bar, no browser.**
 
@@ -11,10 +11,10 @@
 The `supabase` CLI keeps a single login. If your projects live in several
 Supabase accounts — one per client, personal and work, a shared org — every
 change means `supabase logout`, `supabase login`, a browser tab and a code.
-Supabase Switch keeps one access token per account in the macOS Keychain and
+Keyturn keeps one access token per account in the macOS Keychain and
 hands the right one to the CLI when you click.
 
-- **One click** in the menu bar, or `sbswitch use acme` in a terminal.
+- **One click** in the menu bar, or `keyturn use acme` in a terminal.
 - **Your AI agent switches for you**: Claude Code, Codex, Cursor and any other
   MCP client can call `use_project` before running `supabase`. Every switch is
   recorded with who asked for it, and you can turn it off. See
@@ -27,7 +27,7 @@ hands the right one to the CLI when you click.
   menu, a terminal, or which agent), and counts per account, per source and
   per agent. Kept on your Mac only.
 - **One-off commands as another account** without switching:
-  `sbswitch run globex -- supabase migration list`.
+  `keyturn run globex -- supabase migration list`.
 - **Notices logins made elsewhere**: a `supabase login` typed in a terminal
   shows up in the menu within 30 seconds.
 - **Settings window** (⌘, from the menu): accounts, agents, activity,
@@ -50,43 +50,43 @@ hands the right one to the CLI when you click.
 ### From source (recommended)
 
 ```bash
-git clone https://github.com/radafdez/supabase-switch.git
-cd supabase-switch
+git clone https://github.com/radafdez/keyturn.git
+cd keyturn
 ./scripts/build-app.sh --install
 ```
 
-That builds the app, copies it to `/Applications`, links `sbswitch` next to
+That builds the app, copies it to `/Applications`, links `keyturn` next to
 the Supabase CLI and opens it. A bolt appears in the menu bar.
 
 ### With Homebrew
 
 ```bash
-brew install --cask radafdez/tap/supabase-switch
+brew install --cask radafdez/tap/keyturn
 ```
 
-That installs the app in `/Applications` and links `sbswitch`. Naming the
+That installs the app in `/Applications` and links `keyturn`. Naming the
 tap in full trusts only this cask, not the rest of the tap.
 
 The app is **not notarized**, and Homebrew installs it quarantined. macOS
-then stops `sbswitch`, and with it the MCP server the agents use, without
+then stops `keyturn`, and with it the MCP server the agents use, without
 asking, and the app cannot remove the mark itself. Run this once after
 installing:
 
 ```bash
-xattr -dr com.apple.quarantine "/Applications/Supabase Switch.app"
+xattr -dr com.apple.quarantine "/Applications/Keyturn.app"
 ```
 
 Settings → AI Agents shows the same command while it is needed. If the app
 itself is blocked on first launch, the same command clears that too; or click
 **Open Anyway** in **System Settings → Privacy & Security**. After that it
 updates itself, and `brew upgrade` leaves it alone. To remove
-it, `brew uninstall --cask supabase-switch`; add `--zap` to delete your
+it, `brew uninstall --cask keyturn`; add `--zap` to delete your
 accounts list and settings as well (the tokens stay in the Keychain).
 
 ### From a release
 
-Download `Supabase-Switch-<version>.zip` from
-[Releases](https://github.com/radafdez/supabase-switch/releases), unzip it and
+Download `Keyturn-<version>.zip` from
+[Releases](https://github.com/radafdez/keyturn/releases), unzip it and
 move the app to `/Applications`. Release builds are **not notarized** by
 Apple, so the first launch is blocked: open it once, then go to
 **System Settings → Privacy & Security** and click **Open Anyway**. If you
@@ -128,7 +128,7 @@ pencil next to a project gives it a local name.
 
 ## AI agents (MCP)
 
-`sbswitch mcp` is a [Model Context Protocol](https://modelcontextprotocol.io)
+`keyturn mcp` is a [Model Context Protocol](https://modelcontextprotocol.io)
 server over stdio. An agent working on a feature can ask which account the CLI
 is on and switch it to the one that owns the project, without you leaving the
 conversation.
@@ -145,11 +145,11 @@ one for Codex (they run `claude mcp add` / `codex mcp add` for you). Or by
 hand:
 
 ```bash
-claude mcp add --scope user supabase-switch -- "/Applications/Supabase Switch.app/Contents/MacOS/sbswitch" mcp
+claude mcp add --scope user keyturn -- "/Applications/Keyturn.app/Contents/MacOS/keyturn" mcp
 ```
 
 ```bash
-codex mcp add supabase-switch -- "/Applications/Supabase Switch.app/Contents/MacOS/sbswitch" mcp
+codex mcp add keyturn -- "/Applications/Keyturn.app/Contents/MacOS/keyturn" mcp
 ```
 
 For Claude Desktop, Cursor, Windsurf and other tools configured with JSON, the
@@ -158,8 +158,8 @@ same pane gives you the block to paste:
 ```json
 {
   "mcpServers": {
-    "supabase-switch": {
-      "command": "/Applications/Supabase Switch.app/Contents/MacOS/sbswitch",
+    "keyturn": {
+      "command": "/Applications/Keyturn.app/Contents/MacOS/keyturn",
       "args": ["mcp"]
     }
   }
@@ -180,30 +180,30 @@ What agents can and cannot do:
 
 <img src="docs/settings-activity.png" width="420" alt="Activity: each switch with who asked for it"> <img src="docs/settings-about.png" width="420" alt="About: version, updates, links and license">
 
-## `sbswitch`
+## `keyturn`
 
 ```text
-sbswitch                          list the accounts and mark the one in use
-sbswitch use <account>            switch the CLI to that account
-sbswitch current                  say which account the CLI is on now
-sbswitch capture [name]           register the account the CLI is logged in as
-sbswitch add [name]               register an account from its access token
-sbswitch refresh [account]        read the projects again
-sbswitch rename <account> <new name>
-sbswitch alias <project> [alias]  give a project a local name (none = back to Supabase's)
-sbswitch remove <account>
-sbswitch stats                    switches and runs per account
-sbswitch run <account> -- <cmd>   run one command as that account without switching
-sbswitch mcp                      MCP server over stdio, for AI agents
-sbswitch version
+keyturn                          list the accounts and mark the one in use
+keyturn use <account>            switch the CLI to that account
+keyturn current                  say which account the CLI is on now
+keyturn capture [name]           register the account the CLI is logged in as
+keyturn add [name]               register an account from its access token
+keyturn refresh [account]        read the projects again
+keyturn rename <account> <new name>
+keyturn alias <project> [alias]  give a project a local name (none = back to Supabase's)
+keyturn remove <account>
+keyturn stats                    switches and runs per account
+keyturn run <account> -- <cmd>   run one command as that account without switching
+keyturn mcp                      MCP server over stdio, for AI agents
+keyturn version
 ```
 
 `<account>` is its name, the start of its name, or the ref, name or alias of
-one of its projects. `sbswitch add` reads the token without echo, or from
+one of its projects. `keyturn add` reads the token without echo, or from
 standard input — never from the arguments, where other processes could see it:
 
 ```bash
-pbpaste | sbswitch add "Globex"
+pbpaste | keyturn add "Globex"
 ```
 
 ## How it works
@@ -219,13 +219,13 @@ pbpaste | sbswitch add "Globex"
   date of the CLI's Keychain entry (no prompt) and asks the CLI only when that
   date changes.
 - `supabase logout` wipes everything under the Keychain service “Supabase CLI”,
-  so this app keeps its tokens under its own service, “Supabase Switch”, and
+  so this app keeps its tokens under its own service, “Keyturn”, and
   they survive a logout.
 
 ```text
 Sources/SwitchCore       logic without UI: accounts, Keychain, CLI, usage, MCP server
-Sources/SupabaseSwitch   the menu bar app (SwiftUI)
-Sources/sbswitch         the same logic from a terminal
+Sources/KeyturnApp   the menu bar app (SwiftUI)
+Sources/keyturn         the same logic from a terminal
 Tests/SwitchCoreTests    tests with a fake Keychain and a fake CLI
 ```
 
@@ -234,7 +234,7 @@ Tests/SwitchCoreTests    tests with a fake Keychain and a fake CLI
 - Access tokens live **only in the macOS login Keychain**. They are never
   written to a file and never passed as process arguments (stdin or the
   environment only).
-- `~/Library/Application Support/SupabaseSwitch/accounts.json` holds account
+- `~/Library/Application Support/Keyturn/accounts.json` holds account
   names, project refs, regions, your aliases and the usage history (account,
   kind and time — never the command). Nothing secret. Mode `0600`.
 - **No telemetry.** Nothing leaves your Mac except what the Supabase CLI itself
@@ -246,7 +246,7 @@ Tests/SwitchCoreTests    tests with a fake Keychain and a fake CLI
     Any process running as your user can read entries created through
     `/usr/bin/security` without a prompt — the same exposure the CLI's own
     login has.
-  - `sbswitch run` puts the token in the environment of the command it runs.
+  - `keyturn run` puts the token in the environment of the command it runs.
   - An agent with the MCP connected can switch the CLI to any registered
     account. Turn that off in Settings if you would rather do it yourself.
   - If you revoke a token in the dashboard, that account stops switching: add
@@ -260,8 +260,8 @@ See [SECURITY.md](SECURITY.md) to report a vulnerability.
 
 ```bash
 ./scripts/test.sh          # unit tests
-./scripts/build-app.sh     # dist/Supabase Switch.app and dist/sbswitch
-open "dist/Supabase Switch.app"
+./scripts/build-app.sh     # dist/Keyturn.app and dist/keyturn
+open "dist/Keyturn.app"
 ```
 
 Two quirks of building with only the Command Line Tools are handled in the code:
@@ -271,12 +271,12 @@ Two quirks of building with only the Command Line Tools are handled in the code:
   `swift test` works too.
 - **`@State` and `@FocusState`** are macros in the macOS 27 SDK and their plugin
   ships only with Xcode. Views use the aliases `@ViewState` and `@ViewFocus`
-  from `Sources/SupabaseSwitch/ViewState.swift` instead.
+  from `Sources/KeyturnApp/ViewState.swift` instead.
 
 `libSwiftScan` and `search path … not found` warnings are harmless.
 
 User-facing text goes through `tr("English", "Español")` (in
-`Sources/SwitchCore/Localization.swift`). `SUPABASE_SWITCH_LANG=en|es` forces a
+`Sources/SwitchCore/Localization.swift`). `KEYTURN_LANG=en|es` forces a
 language.
 
 `scripts/try-update.sh` runs a real Sparkle update on your Mac, start to
@@ -284,13 +284,13 @@ finish, with a throwaway key and a feed on `127.0.0.1`, and checks that an
 edited feed and a swapped zip are refused. It does not touch your accounts,
 your settings or the real feed.
 
-`SUPABASE_SWITCH_DEMO=1` opens the app with three made-up accounts kept in
+`KEYTURN_DEMO=1` opens the app with three made-up accounts kept in
 memory — no file, Keychain or CLI is touched — and
-`SUPABASE_SWITCH_SNAPSHOTS=<folder>` draws the menu and every settings pane
+`KEYTURN_SNAPSHOTS=<folder>` draws the menu and every settings pane
 into PNGs and quits; that is how the screenshots here are made:
 
 ```bash
-SUPABASE_SWITCH_SNAPSHOTS=/tmp/shots "dist/Supabase Switch.app/Contents/MacOS/SupabaseSwitch"
+KEYTURN_SNAPSHOTS=/tmp/shots "dist/Keyturn.app/Contents/MacOS/KeyturnApp"
 ```
 
 Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -303,6 +303,6 @@ Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
-Supabase Switch is an independent project, not affiliated with or endorsed by
+Keyturn is an independent project, not affiliated with or endorsed by
 Supabase Inc. Supabase is a trademark of Supabase Inc. The app does not use the
 Supabase logo.

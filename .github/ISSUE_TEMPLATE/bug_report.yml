@@ -19,8 +19,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: Supabase Switch version
-      description: "`sbswitch version`, or the number at the bottom of the menu."
+      label: Keyturn version
+      description: "`keyturn version`, or the number at the bottom of the menu."
     validations:
       required: true
   - type: input
