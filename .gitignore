@@ -1,3 +1,5 @@
 .build/
 dist/
 appcast.xml
+supabase-switch-brand/
+.DS_Store

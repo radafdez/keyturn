@@ -68,6 +68,7 @@ ditto "$(swift build -c release --arch arm64 --show-bin-path)/Sparkle.framework"
 # Sparkle también es MIT: su aviso viaja con cada copia de la app.
 cp .build/artifacts/sparkle/Sparkle/LICENSE "$bundle/Contents/Resources/Sparkle-LICENSE.txt"
 cp Resources/AppIcon.icns "$bundle/Contents/Resources/AppIcon.icns"
+cp Resources/MenuBarIcon.png Resources/MenuBarIcon@2x.png "$bundle/Contents/Resources/"
 # The build number counts commits, so two builds of one version can be told apart.
 # El número de build cuenta commits, para distinguir dos builds de una versión.
 build="$(git rev-list --count HEAD 2>/dev/null || echo 1)"

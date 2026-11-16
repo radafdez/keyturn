@@ -6,6 +6,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-11-16
+
+### Changed
+- A new icon: two arrows going round a bolt, on a charcoal tile. The menu bar
+  shows the same symbol in place of the plain bolt, black or white to match the
+  bar.
+
+### Added
+- `brand/`: the symbol as SVG (logos, app icons, favicons, one-colour
+  versions), for anyone writing about the app.
+
 ## [1.3.2] - 2026-11-16
 
 ### Fixed

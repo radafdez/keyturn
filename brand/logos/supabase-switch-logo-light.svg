@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Supabase Switch symbol">
+  <title>Supabase Switch — supabase-switch-logo-light</title>
+  <defs>
+    <linearGradient id="surface" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2D323D"/><stop offset="1" stop-color="#272C36"/>
+    </linearGradient>
+  </defs>
+  <circle cx="256" cy="256" r="256" fill="url(#surface)"/>
+  <g>
+    <path d="M 98 247 C 101 162 170 98 254 98 C 311 98 361 128 391 173" fill="none" stroke="#D9DAE0" stroke-width="19" stroke-linecap="round"/>
+    <path d="M 420 141 Q 424 138 424 144 L 421 209 Q 421 214 416 212 L 357 192 Q 351 190 356 186 Z" fill="#D9DAE0"/>
+    <path d="M 419 263 C 416 351 348 416 262 416 C 204 416 152 385 122 340" fill="none" stroke="#48BE96" stroke-width="19" stroke-linecap="round"/>
+    <path d="M 98 379 Q 94 383 94 377 L 97 311 Q 97 306 102 308 L 162 329 Q 167 331 162 334 Z" fill="#48BE96"/>
+    <path d="M 253 186 Q 258 179 258 188 L 258 231 Q 258 235 262 235 L 306 235 Q 313 235 308 242 L 255 320 Q 250 327 250 319 L 250 273 Q 250 269 246 269 L 201 269 Q 195 269 199 263 Z" fill="#48BE96"/>
+  </g>
+</svg>

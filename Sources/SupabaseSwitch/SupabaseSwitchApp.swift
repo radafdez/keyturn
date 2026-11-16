@@ -14,7 +14,11 @@ struct SupabaseSwitchApp: App {
         MenuBarExtra {
             MenuView(model: model)
         } label: {
-            Image(systemName: "bolt.fill")
+            if let icon = MenuBarIcon.image {
+                Image(nsImage: icon)
+            } else {
+                Image(systemName: "bolt.fill")
+            }
             Text(model.menuBarTitle)
         }
         .menuBarExtraStyle(.window)
@@ -60,4 +64,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         main.addItem(item)
         return main
     }
+}
+
+/// The brand symbol for the menu bar, drawn by `scripts/make-icon.swift`. It is a
+/// template, so macOS inks it black or white to match the bar. A build run with
+/// `swift run` has no bundle and falls back to a bolt.
+/// El símbolo de la marca para la barra de menús, que dibuja
+/// `scripts/make-icon.swift`. Es una plantilla, así que macOS lo pinta de negro o
+/// de blanco según la barra. Una compilación con `swift run` no tiene bundle y
+/// usa un rayo.
+enum MenuBarIcon {
+    static let image: NSImage? = {
+        guard let image = Bundle.main.image(forResource: "MenuBarIcon") else { return nil }
+        image.isTemplate = true
+        image.accessibilityDescription = "Supabase Switch"
+        return image
+    }()
 }

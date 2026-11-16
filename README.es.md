@@ -1,3 +1,5 @@
+<img src="Resources/AppIcon.png" width="128" alt="Icono de Supabase Switch">
+
 # Supabase Switch
 
 **Cambia la cuenta con la que trabaja el CLI de Supabase: un clic en la barra de menús, sin navegador.**

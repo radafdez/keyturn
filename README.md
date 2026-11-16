@@ -1,3 +1,5 @@
+<img src="Resources/AppIcon.png" width="128" alt="Supabase Switch icon">
+
 # Supabase Switch
 
 **Switch the account the Supabase CLI is logged in as — one click in the menu bar, no browser.**

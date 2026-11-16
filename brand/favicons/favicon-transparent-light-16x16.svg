@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="80 80 360 356" role="img" aria-label="Supabase Switch symbol">
+  <title>Supabase Switch — favicon-transparent-light-16x16</title>
+  <g>
+    <path d="M 98 247 C 101 162 170 98 254 98 C 311 98 361 128 391 173" fill="none" stroke="#303640" stroke-width="24" stroke-linecap="round"/>
+    <path d="M 420 141 Q 424 138 424 144 L 421 209 Q 421 214 416 212 L 357 192 Q 351 190 356 186 Z" fill="#303640"/>
+    <path d="M 419 263 C 416 351 348 416 262 416 C 204 416 152 385 122 340" fill="none" stroke="#48BE96" stroke-width="24" stroke-linecap="round"/>
+    <path d="M 98 379 Q 94 383 94 377 L 97 311 Q 97 306 102 308 L 162 329 Q 167 331 162 334 Z" fill="#48BE96"/>
+    <path d="M 253 186 Q 258 179 258 188 L 258 231 Q 258 235 262 235 L 306 235 Q 313 235 308 242 L 255 320 Q 250 327 250 319 L 250 273 Q 250 269 246 269 L 201 269 Q 195 269 199 263 Z" fill="#48BE96"/>
+  </g>
+</svg>
