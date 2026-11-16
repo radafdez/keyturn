@@ -58,11 +58,21 @@ brew install --cask radafdez/tap/supabase-switch
 ```
 
 Instala la app en `/Applications` y enlaza `sbswitch`. Al nombrar el tap
-completo solo se confía en este cask, no en el resto del tap. La app **no está
-notarizada**, así que la primera vez macOS la bloquea igual que la del zip:
-ábrela una vez y pulsa **Abrir igualmente** en **Ajustes del Sistema →
-Privacidad y seguridad**. Hazlo antes de usar `sbswitch`: hasta que la app se
-abre una vez, macOS también para la orden. Después se actualiza sola, y `brew upgrade` no la
+completo solo se confía en este cask, no en el resto del tap.
+
+La app **no está notarizada**, y Homebrew la instala en cuarentena. macOS para
+entonces `sbswitch`, y con él el servidor MCP que usan los agentes, sin
+preguntar, y la app no puede quitarse la marca sola. Ejecuta esto una vez tras
+instalar:
+
+```bash
+xattr -dr com.apple.quarantine "/Applications/Supabase Switch.app"
+```
+
+Ajustes → Agentes de IA muestra la misma orden mientras haga falta. Si la
+propia app se bloquea al abrirla, esa orden también lo resuelve; o pulsa
+**Abrir igualmente** en **Ajustes del Sistema → Privacidad y seguridad**.
+Después se actualiza sola, y `brew upgrade` no la
 toca. Para quitarla, `brew uninstall --cask supabase-switch`; con `--zap` borra
 también tu lista de cuentas y tus ajustes (los tokens siguen en el Llavero).
 

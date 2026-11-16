@@ -6,6 +6,16 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.3.2] - 2026-11-16
+
+### Fixed
+
+- 1.3.1 said a copy installed with Homebrew lifts the quarantine from its own
+  files once opened. It cannot: macOS does not let a quarantined app remove the
+  mark, so `sbswitch` and the MCP server stayed blocked. Now Settings → AI
+  Agents says so and gives the Terminal command that removes it, and the
+  README and the cask explain it after `brew install`.
+
 ## [1.3.1] - 2026-11-16
 
 ### Added

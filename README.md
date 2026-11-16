@@ -63,11 +63,21 @@ brew install --cask radafdez/tap/supabase-switch
 ```
 
 That installs the app in `/Applications` and links `sbswitch`. Naming the
-tap in full trusts only this cask, not the rest of the tap. The app is **not
-notarized**, so the first launch is blocked as with the zip below: open it
-once and click **Open Anyway** in **System Settings → Privacy & Security**.
-Do that before using `sbswitch`: until the app has run once, macOS stops the
-command too. After that it updates itself, and `brew upgrade` leaves it alone. To remove
+tap in full trusts only this cask, not the rest of the tap.
+
+The app is **not notarized**, and Homebrew installs it quarantined. macOS
+then stops `sbswitch`, and with it the MCP server the agents use, without
+asking, and the app cannot remove the mark itself. Run this once after
+installing:
+
+```bash
+xattr -dr com.apple.quarantine "/Applications/Supabase Switch.app"
+```
+
+Settings → AI Agents shows the same command while it is needed. If the app
+itself is blocked on first launch, the same command clears that too; or click
+**Open Anyway** in **System Settings → Privacy & Security**. After that it
+updates itself, and `brew upgrade` leaves it alone. To remove
 it, `brew uninstall --cask supabase-switch`; add `--zap` to delete your
 accounts list and settings as well (the tokens stay in the Keychain).
 

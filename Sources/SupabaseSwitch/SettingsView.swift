@@ -194,9 +194,25 @@ private struct AccountsPane: View {
 
 private struct AgentsPane: View {
     @ObservedObject var model: AppModel
+    /// Bumped by "Check Again", so the notice reads the mark afresh.
+    /// Sube con «Comprobar de nuevo», para que el aviso vuelva a leer la marca.
+    @ViewState private var recheck = 0
 
     var body: some View {
         Form {
+            if recheck >= 0, Quarantine.blocksCommandLine(bundle: Bundle.main.bundleURL) {
+                Section {
+                    Label(tr("macOS is blocking sbswitch", "macOS está bloqueando sbswitch"), systemImage: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.orange)
+                        .font(.headline)
+                    Text(tr("Homebrew installed the app quarantined, and macOS stops the command, and the agents with it, until the mark is gone. The app cannot remove it itself. Run this in Terminal:",
+                            "Homebrew instaló la app en cuarentena, y macOS para la orden, y con ella a los agentes, hasta que se quite la marca. La app no puede quitársela sola. Ejecuta esto en Terminal:"))
+                        .fixedSize(horizontal: false, vertical: true)
+                    CopyField(text: Quarantine.releaseCommand(bundle: Bundle.main.bundleURL))
+                    Button(tr("Check Again", "Comprobar de nuevo")) { recheck += 1 }
+                }
+            }
+
             Section {
                 Toggle(isOn: Binding(get: { model.agentsCanSwitch }, set: { model.setAgentsCanSwitch($0) })) {
                     Text(tr("Let AI agents switch the account", "Dejar que los agentes de IA cambien la cuenta"))
