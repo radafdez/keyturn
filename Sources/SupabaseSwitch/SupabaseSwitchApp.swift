@@ -6,6 +6,9 @@ import SwitchCore
 struct SupabaseSwitchApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @StateObject private var model = AppModel()
+    // Started with the app, so a scheduled check does not wait for a window.
+    // Arranca con la app, para que una comprobación programada no espere a una ventana.
+    @StateObject private var updater = Updater.shared
 
     var body: some Scene {
         MenuBarExtra {

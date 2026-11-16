@@ -56,6 +56,26 @@ Las versiones publicadas en [Releases](https://github.com/radafdez/supabase-swit
 vez y pulsa **Abrir igualmente** en **Ajustes del Sistema → Privacidad y
 seguridad**. Si prefieres no hacerlo, compílala: tarda un minuto.
 
+Eso es solo la primera vez: desde la 1.3.0 la app se actualiza sola.
+
+### Actualizaciones
+
+Las copias descargadas de Releases se actualizan con [Sparkle](https://sparkle-project.org).
+En el segundo arranque la app pregunta una vez si comprobar por su cuenta;
+puedes cambiarlo, o comprobar a mano, en **Ajustes → General** y **Acerca de**.
+Si encuentra una versión mientras trabajas, no abre ninguna ventana: el menú
+muestra «La versión … está lista para instalar».
+
+Cada actualización va firmada con la clave EdDSA del proyecto, y también el
+feed que la anuncia. La app tiene la mitad pública y rechaza un feed o un zip
+que no coincida, antes de descomprimir nada. Esa firma, y no una notarización
+de Apple, es lo que prueba que una actualización sale de este repositorio. Una
+actualización que instala Sparkle no queda en cuarentena, así que no hace falta
+volver a pulsar **Abrir igualmente**.
+
+Una copia compilada desde el código no se actualiza sola: haz pull y vuelve a
+compilar. Una copia instalada con Homebrew se deja a `brew upgrade`.
+
 ## Primeros pasos
 
 1. Con el CLI logueado en una cuenta, «Capturar la sesión actual del CLI». macOS
@@ -126,7 +146,9 @@ Las órdenes son las mismas que en el [README en inglés](README.md#sbswitch);
   refs, regiones, tus alias y el historial de uso (cuenta, tipo y hora; nunca la
   orden). Nada secreto.
 - **Sin telemetría.** De tu Mac no sale nada más que lo que el propio CLI le
-  envía a Supabase. La app no busca actualizaciones por su cuenta.
+  envía a Supabase. Buscar actualizaciones (solo si lo permites, o si pulsas el
+  botón) pide a GitHub `appcast.xml`, la lista de versiones; no envía ningún
+  perfil de tu Mac.
 - Cualquier proceso con tu usuario puede leer los tokens a través de `security`
   sin que macOS pregunte, igual que la sesión del propio CLI.
 - Un agente con el MCP conectado puede cambiar el CLI a cualquier cuenta
@@ -136,7 +158,9 @@ Para informar de una vulnerabilidad, ver [SECURITY.md](SECURITY.md).
 
 ## Licencia
 
-[MIT](LICENSE)
+[MIT](LICENSE). La app incluye [Sparkle](https://github.com/sparkle-project/Sparkle),
+© sus autores, con licencia MIT; su aviso va dentro de la app, en
+`Contents/Resources/Sparkle-LICENSE.txt`.
 
 ---
 

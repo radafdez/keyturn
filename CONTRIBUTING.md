@@ -51,5 +51,17 @@ Changes to `sbswitch mcp` are tested in `Tests/SwitchCoreTests/MCPServerTests.sw
 by sending JSON-RPC lines to `MCPServer.handle(_:)`. A tool must never return a
 token, and a switch must record its origin.
 
+## Releases and the update key
+
+A release is a tag (`v1.3.0`) that matches `switchVersion` and has a section
+in `CHANGELOG.md`. The release workflow builds the app, signs the zip with the
+EdDSA key in the `SPARKLE_PRIVATE_KEY` secret, writes and signs `appcast.xml`,
+and refuses to publish if that signature does not match the public key in
+`Resources/sparkle-public-key.txt`. The public key is in the repository; the
+private one is only in the maintainer's Keychain and in that secret.
+
+Changes to the updater are tested with `scripts/try-update.sh`, never against
+the real feed.
+
 By contributing you agree that your work is released under the
 [MIT License](LICENSE), and to follow the [Code of Conduct](CODE_OF_CONDUCT.md).

@@ -30,6 +30,8 @@ hands the right one to the CLI when you click.
   shows up in the menu within 30 seconds.
 - **Settings window** (⌘, from the menu): accounts, agents, activity,
   statistics, language and about.
+- **Updates itself**: new versions install with one click, and only if they
+  carry the project's signature. See [Updates](#updates).
 - English and Spanish, following the system language or your choice.
 
 ## Requirements
@@ -62,6 +64,25 @@ move the app to `/Applications`. Release builds are **not notarized** by
 Apple, so the first launch is blocked: open it once, then go to
 **System Settings → Privacy & Security** and click **Open Anyway**. If you
 would rather not do that, build from source — it takes about a minute.
+
+That is only the first time: from 1.3.0 on, the app updates itself (below).
+
+### Updates
+
+Copies downloaded from Releases update through [Sparkle](https://sparkle-project.org).
+On the second launch the app asks once whether to check on its own; you can
+change that, or check by hand, in **Settings → General** and **About**. A
+check that finds a version while you work does not open a window: the menu
+shows “Version … is ready to install”.
+
+Every update is signed with the project's EdDSA key, and so is the feed that
+announces it. The app holds the public half and refuses a feed or a zip that
+does not match, before unpacking anything. That signature, not an Apple
+notarization, is what proves an update comes from this repository. An update
+Sparkle installs is not quarantined, so **Open Anyway** is not needed again.
+
+A copy built from source does not update itself: pull and build again. A copy
+installed with Homebrew is left to `brew upgrade`.
 
 ## First steps
 
@@ -190,7 +211,9 @@ Tests/SwitchCoreTests    tests with a fake Keychain and a fake CLI
   names, project refs, regions, your aliases and the usage history (account,
   kind and time — never the command). Nothing secret. Mode `0600`.
 - **No telemetry.** Nothing leaves your Mac except what the Supabase CLI itself
-  sends to Supabase. The app does not check for updates on its own.
+  sends to Supabase. Checking for updates (only if you allow it, or press the
+  button) asks GitHub for `appcast.xml`, the list of versions; it sends no
+  profile of your Mac.
 - Worth knowing:
   - Each registered account means one long-lived access token in the Keychain.
     Any process running as your user can read entries created through
@@ -229,6 +252,11 @@ User-facing text goes through `tr("English", "Español")` (in
 `Sources/SwitchCore/Localization.swift`). `SUPABASE_SWITCH_LANG=en|es` forces a
 language.
 
+`scripts/try-update.sh` runs a real Sparkle update on your Mac, start to
+finish, with a throwaway key and a feed on `127.0.0.1`, and checks that an
+edited feed and a swapped zip are refused. It does not touch your accounts,
+your settings or the real feed.
+
 `SUPABASE_SWITCH_DEMO=1` opens the app with three made-up accounts kept in
 memory — no file, Keychain or CLI is touched — and
 `SUPABASE_SWITCH_SNAPSHOTS=<folder>` draws the menu and every settings pane
@@ -242,7 +270,9 @@ Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE). The app includes [Sparkle](https://github.com/sparkle-project/Sparkle),
+© its authors, under the MIT License; its notice ships inside the app as
+`Contents/Resources/Sparkle-LICENSE.txt`.
 
 ---
 

@@ -22,6 +22,26 @@ version="$(sed -n 's/.*switchVersion = "\(.*\)".*/\1/p' Sources/SwitchCore/Versi
 name="Supabase Switch"
 bundle="dist/$name.app"
 
+# Updates: the feed is the appcast.xml of the latest GitHub release, and the
+# public half of the project's EdDSA key checks it. Without the key file the
+# app is built without Sparkle's settings and points to the releases page.
+# Actualizaciones: el feed es el appcast.xml de la última versión de GitHub, y
+# la mitad pública de la clave EdDSA del proyecto lo comprueba. Sin el fichero
+# de la clave, la app se construye sin los ajustes de Sparkle y remite a la
+# página de versiones.
+feed="https://github.com/radafdez/supabase-switch/releases/latest/download/appcast.xml"
+public_key="$(tr -d '[:space:]' < Resources/sparkle-public-key.txt 2>/dev/null || true)"
+sparkle_keys=""
+if [ -n "$public_key" ]; then
+  sparkle_keys="  <key>SUFeedURL</key><string>$feed</string>
+  <key>SUPublicEDKey</key><string>$public_key</string>
+  <key>SURequireSignedFeed</key><true/>
+  <key>SUVerifyUpdateBeforeExtraction</key><true/>
+  <key>SUEnableSystemProfiling</key><false/>"
+else
+  echo "warning: no Resources/sparkle-public-key.txt, building without updates" >&2
+fi
+
 # Universal binary (Apple Silicon and Intel): one build per architecture,
 # joined with lipo. Both `--arch` in one build need Xcode on older Swift, and
 # newer Swift puts every architecture in the same folder, so each result is
@@ -40,7 +60,13 @@ for architecture in arm64 x86_64; do
 done
 
 rm -rf "$bundle"
-mkdir -p "$bundle/Contents/MacOS" "$bundle/Contents/Resources"
+mkdir -p "$bundle/Contents/MacOS" "$bundle/Contents/Resources" "$bundle/Contents/Frameworks"
+# The framework is already universal; ditto keeps its symlinks and signature.
+# El framework ya es universal; ditto conserva sus enlaces y su firma.
+ditto "$(swift build -c release --arch arm64 --show-bin-path)/Sparkle.framework" "$bundle/Contents/Frameworks/Sparkle.framework"
+# Sparkle is MIT too: its notice travels with every copy of the app.
+# Sparkle también es MIT: su aviso viaja con cada copia de la app.
+cp .build/artifacts/sparkle/Sparkle/LICENSE "$bundle/Contents/Resources/Sparkle-LICENSE.txt"
 cp Resources/AppIcon.icns "$bundle/Contents/Resources/AppIcon.icns"
 # The build number counts commits, so two builds of one version can be told apart.
 # El número de build cuenta commits, para distinguir dos builds de una versión.
@@ -51,6 +77,9 @@ for product in SupabaseSwitch sbswitch; do
     -output "$bundle/Contents/MacOS/$product"
 done
 cp "$bundle/Contents/MacOS/sbswitch" dist/sbswitch
+# SwiftPM only looks next to the executable; the framework lives in Frameworks.
+# SwiftPM solo busca junto al ejecutable; el framework vive en Frameworks.
+install_name_tool -add_rpath "@executable_path/../Frameworks" "$bundle/Contents/MacOS/SupabaseSwitch"
 
 cat > "$bundle/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
@@ -72,6 +101,7 @@ cat > "$bundle/Contents/Info.plist" <<PLIST
   <key>LSMinimumSystemVersion</key><string>13.0</string>
   <key>LSUIElement</key><true/>
   <key>NSHighResolutionCapable</key><true/>
+$sparkle_keys
 </dict>
 </plist>
 PLIST
@@ -83,6 +113,7 @@ PLIST
 # sigue leyendo.
 codesign --force --sign - "$bundle/Contents/MacOS/sbswitch"
 codesign --force --sign - "$bundle"
+codesign --verify --deep --strict "$bundle"
 codesign --force --sign - dist/sbswitch
 
 echo "Built: $bundle ($version)"

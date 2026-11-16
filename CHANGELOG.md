@@ -6,6 +6,25 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-11-16
+
+### Added
+
+- The app updates itself through Sparkle: “Check for Updates…” in About,
+  “Check Now” and “Check for updates automatically” in Settings → General.
+  Sparkle asks once, on the second launch, whether to check on its own.
+- A version found in the background waits in the menu (“Version … is ready to
+  install”) instead of opening a window.
+- Updates and the feed are signed with the project's EdDSA key; the app
+  refuses a feed or a zip that does not match before unpacking it.
+- `scripts/try-update.sh`: a real update on your Mac with a throwaway key, plus
+  an edited feed and a swapped zip that must be refused.
+
+### Changed
+
+- Copies installed with Homebrew leave updates to Homebrew, and copies built
+  from source point to the releases page.
+
 ## [1.2.0] - 2026-11-15
 
 ### Added

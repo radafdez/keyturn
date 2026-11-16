@@ -73,6 +73,7 @@ struct SettingsView: View {
 
 private struct GeneralPane: View {
     @ObservedObject var model: AppModel
+    @ObservedObject var updater = Updater.shared
 
     var body: some View {
         Form {
@@ -87,6 +88,23 @@ private struct GeneralPane: View {
                     get: { model.launchesAtLogin },
                     set: { model.setLaunchAtLogin($0) }
                 ))
+            }
+
+            if updater.channel == .sparkle {
+                Section(tr("Updates", "Actualizaciones")) {
+                    Toggle(tr("Check for updates automatically", "Buscar actualizaciones automáticamente"), isOn: Binding(
+                        get: { updater.checksAutomatically },
+                        set: { updater.setChecksAutomatically($0) }
+                    ))
+                    LabeledContent(tr("Version \(switchVersion)", "Versión \(switchVersion)")) {
+                        Button(tr("Check Now", "Buscar ahora")) { updater.checkForUpdates() }
+                            .disabled(!updater.canCheck)
+                    }
+                    Text(tr("A check only asks GitHub for the list of versions. It sends nothing about you or this Mac.",
+                            "Una comprobación solo pide a GitHub la lista de versiones. No envía nada sobre ti ni sobre este Mac."))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
 
             Section {
@@ -451,12 +469,7 @@ private struct AboutPane: View {
         (info["NSHumanReadableCopyright"] as? String)?.replacingOccurrences(of: "Copyright ", with: "") ?? "© 2026 Radames Fernandez. MIT License."
     }
 
-    /// Homebrew installs casks under its Caskroom; anything else came from GitHub.
-    /// Homebrew instala los casks en su Caskroom; lo demás vino de GitHub.
-    private var homebrew: Bool {
-        ["/opt/homebrew/Caskroom/supabase-switch", "/usr/local/Caskroom/supabase-switch"]
-            .contains { FileManager.default.fileExists(atPath: $0) }
-    }
+    @ObservedObject var updater = Updater.shared
 
     var body: some View {
         ScrollView {
@@ -481,12 +494,20 @@ private struct AboutPane: View {
 
                 GroupBox {
                     VStack(alignment: .leading, spacing: 8) {
-                        if homebrew {
+                        switch updater.channel {
+                        case .sparkle:
+                            Text(tr("New versions come from GitHub, signed with the project's key. The app installs them for you and refuses any that is not signed.",
+                                    "Las versiones nuevas llegan de GitHub, firmadas con la clave del proyecto. La app las instala por ti y rechaza cualquiera que no lo esté."))
+                                .font(.callout)
+                                .fixedSize(horizontal: false, vertical: true)
+                            Button(tr("Check for Updates…", "Buscar actualizaciones…")) { updater.checkForUpdates() }
+                                .disabled(!updater.canCheck)
+                        case .homebrew:
                             Text(tr("Managed by Homebrew", "Gestionada por Homebrew")).font(.callout)
                             CopyField(text: "brew upgrade --cask radafdez/tap/supabase-switch")
-                        } else {
-                            Text(tr("New versions are published on GitHub. Download the zip, replace the app, and you are done.",
-                                    "Las versiones nuevas se publican en GitHub. Descarga el zip, sustituye la app y listo."))
+                        case .manual:
+                            Text(tr("This copy was built from source, so it does not update itself. New versions are published on GitHub.",
+                                    "Esta copia se compiló desde el código, así que no se actualiza sola. Las versiones nuevas se publican en GitHub."))
                                 .font(.callout)
                                 .fixedSize(horizontal: false, vertical: true)
                             Button(tr("Open the releases page", "Abrir la página de versiones")) {

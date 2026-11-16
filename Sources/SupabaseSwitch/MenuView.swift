@@ -4,6 +4,7 @@ import SwitchCore
 
 struct MenuView: View {
     @ObservedObject var model: AppModel
+    @ObservedObject var updater = Updater.shared
     @Environment(\.openWindow) private var openWindow
 
     enum Panel { case none, adding, stats }
@@ -20,6 +21,18 @@ struct MenuView: View {
                 Banner(text: problem, tint: .red) { model.problem = nil }
             }
             sessionNotice
+            if let version = updater.waiting {
+                Button { updater.checkForUpdates() } label: {
+                    Label(tr("Version \(version) is ready to install", "La versión \(version) está lista para instalar"),
+                          systemImage: "arrow.down.circle.fill")
+                        .font(.callout)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(.borderless)
+                .foregroundStyle(Color.accentColor)
+                .padding(.horizontal, 12)
+                .padding(.bottom, 8)
+            }
             Divider()
 
             if model.accounts.isEmpty {
