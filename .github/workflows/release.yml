@@ -44,7 +44,12 @@ jobs:
         run: |
           version="${GITHUB_REF_NAME#v}"
           ditto -c -k --keepParent "dist/Keyturn.app" "Keyturn-$version.zip"
-          ditto -c -k --norsrc --noextattr dist/keyturn "keyturn-$version.zip"
+          # Not "keyturn-…": macOS file names ignore case, and that zip would
+          # replace the app's. / No «keyturn-…»: macOS no distingue mayúsculas
+          # y ese zip sustituiría al de la app.
+          ditto -c -k --norsrc --noextattr dist/keyturn "keyturn-cli-$version.zip"
+          unzip -l "Keyturn-$version.zip" | grep -q "Keyturn.app/Contents/Info.plist" \
+            || { echo "Keyturn-$version.zip does not hold the app"; exit 1; }
           shasum -a 256 *.zip > SHA256SUMS.txt
           # The notes are this version's section of CHANGELOG.md: Sparkle shows
           # them as they are, the release page adds how to install.
