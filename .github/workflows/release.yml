@@ -55,8 +55,9 @@ jobs:
 
           ### Install
 
-          Unzip `Supabase-Switch-*.zip` and move the app to `/Applications`. The build
-          is **not notarized**: the first launch is blocked until you click **Open
+          `brew install --cask radafdez/tap/supabase-switch`, or unzip
+          `Supabase-Switch-*.zip` and move the app to `/Applications`. The build is
+          **not notarized**: the first launch is blocked until you click **Open
           Anyway** in System Settings → Privacy & Security. Or build from source — see
           the [README](https://github.com/radafdez/supabase-switch#install).
           NOTE

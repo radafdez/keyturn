@@ -6,6 +6,19 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-11-16
+
+### Added
+
+- Install with Homebrew: `brew install --cask radafdez/tap/supabase-switch`.
+  It also links `sbswitch`.
+
+### Changed
+
+- Copies installed with Homebrew update themselves too, like the ones from the
+  zip. `brew upgrade` leaves them alone, so macOS does not block the app again
+  after every upgrade.
+
 ## [1.3.0] - 2026-11-16
 
 ### Added

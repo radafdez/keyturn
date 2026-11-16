@@ -502,9 +502,6 @@ private struct AboutPane: View {
                                 .fixedSize(horizontal: false, vertical: true)
                             Button(tr("Check for Updates…", "Buscar actualizaciones…")) { updater.checkForUpdates() }
                                 .disabled(!updater.canCheck)
-                        case .homebrew:
-                            Text(tr("Managed by Homebrew", "Gestionada por Homebrew")).font(.callout)
-                            CopyField(text: "brew upgrade --cask radafdez/tap/supabase-switch")
                         case .manual:
                             Text(tr("This copy was built from source, so it does not update itself. New versions are published on GitHub.",
                                     "Esta copia se compiló desde el código, así que no se actualiza sola. Las versiones nuevas se publican en GitHub."))

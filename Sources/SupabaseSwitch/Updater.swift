@@ -8,7 +8,9 @@ import SwitchCore
 ///
 /// Sparkle asks once, on the second launch, whether to check on its own. Until
 /// then, and if the answer is no, it only checks when you press the button.
-/// A copy installed with Homebrew leaves updates to Homebrew.
+/// A copy installed with Homebrew updates the same way: its cask says
+/// `auto_updates`, so `brew upgrade` leaves it alone instead of installing a
+/// quarantined copy that Gatekeeper would block again.
 ///
 /// Actualizaciones a través de Sparkle. El feed y cada zip van firmados con la
 /// clave EdDSA del proyecto, y la app rechaza lo que no lo esté: eso, y no una
@@ -16,7 +18,9 @@ import SwitchCore
 ///
 /// Sparkle pregunta una vez, en el segundo arranque, si comprobar por su cuenta.
 /// Hasta entonces, y si la respuesta es no, solo comprueba al pulsar el botón.
-/// Una copia instalada con Homebrew deja las actualizaciones a Homebrew.
+/// Una copia instalada con Homebrew se actualiza igual: su cask dice
+/// `auto_updates`, así que `brew upgrade` no la toca en vez de instalar una
+/// copia en cuarentena que Gatekeeper volvería a bloquear.
 @MainActor
 final class Updater: NSObject, ObservableObject {
     static let shared = Updater()
@@ -24,8 +28,6 @@ final class Updater: NSObject, ObservableObject {
     enum Channel {
         /// Sparkle, with the feed of the GitHub releases. / Sparkle, con el feed de las versiones de GitHub.
         case sparkle
-        /// `brew upgrade`. / `brew upgrade`.
-        case homebrew
         /// A build from source, or one without a feed: the releases page. / Una
         /// compilación desde el código, o sin feed: la página de versiones.
         case manual
@@ -46,9 +48,7 @@ final class Updater: NSObject, ObservableObject {
         let info = Bundle.main.infoDictionary ?? [:]
         let snapshots = ProcessInfo.processInfo.environment["SUPABASE_SWITCH_SNAPSHOTS"] != nil
         let hasFeed = info["SUFeedURL"] != nil && info["SUPublicEDKey"] != nil
-        if Self.installedByHomebrew {
-            channel = .homebrew
-        } else if snapshots || (hasFeed && Bundle.main.bundleURL.pathExtension == "app") {
+        if snapshots || (hasFeed && Bundle.main.bundleURL.pathExtension == "app") {
             channel = .sparkle
         } else {
             channel = .manual
@@ -74,13 +74,6 @@ final class Updater: NSObject, ObservableObject {
                 Task { @MainActor in self?.checksAutomatically = value }
             },
         ]
-    }
-
-    /// Homebrew installs casks under its Caskroom; anything else came from GitHub.
-    /// Homebrew instala los casks en su Caskroom; lo demás vino de GitHub.
-    static var installedByHomebrew: Bool {
-        ["/opt/homebrew/Caskroom/supabase-switch", "/usr/local/Caskroom/supabase-switch"]
-            .contains { FileManager.default.fileExists(atPath: $0) }
     }
 
     func checkForUpdates() {

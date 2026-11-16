@@ -51,6 +51,20 @@ cd supabase-switch
 Compila la app, la copia a `/Applications`, enlaza `sbswitch` junto al CLI de
 Supabase y la abre. Aparece un rayo en la barra de menús.
 
+Con Homebrew:
+
+```bash
+brew install --cask radafdez/tap/supabase-switch
+```
+
+Instala la app en `/Applications` y enlaza `sbswitch`. Al nombrar el tap
+completo solo se confía en este cask, no en el resto del tap. La app **no está
+notarizada**, así que la primera vez macOS la bloquea igual que la del zip:
+ábrela una vez y pulsa **Abrir igualmente** en **Ajustes del Sistema →
+Privacidad y seguridad**. Después se actualiza sola, y `brew upgrade` no la
+toca. Para quitarla, `brew uninstall --cask supabase-switch`; con `--zap` borra
+también tu lista de cuentas y tus ajustes (los tokens siguen en el Llavero).
+
 Las versiones publicadas en [Releases](https://github.com/radafdez/supabase-switch/releases)
 **no están notarizadas** por Apple: la primera vez macOS la bloquea. Ábrela una
 vez y pulsa **Abrir igualmente** en **Ajustes del Sistema → Privacidad y
@@ -73,8 +87,8 @@ de Apple, es lo que prueba que una actualización sale de este repositorio. Una
 actualización que instala Sparkle no queda en cuarentena, así que no hace falta
 volver a pulsar **Abrir igualmente**.
 
-Una copia compilada desde el código no se actualiza sola: haz pull y vuelve a
-compilar. Una copia instalada con Homebrew se deja a `brew upgrade`.
+Una copia instalada con Homebrew se actualiza igual. Una copia compilada desde
+el código no se actualiza sola: haz pull y vuelve a compilar.
 
 ## Primeros pasos
 

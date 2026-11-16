@@ -56,6 +56,20 @@ cd supabase-switch
 That builds the app, copies it to `/Applications`, links `sbswitch` next to
 the Supabase CLI and opens it. A bolt appears in the menu bar.
 
+### With Homebrew
+
+```bash
+brew install --cask radafdez/tap/supabase-switch
+```
+
+That installs the app in `/Applications` and links `sbswitch`. Naming the
+tap in full trusts only this cask, not the rest of the tap. The app is **not
+notarized**, so the first launch is blocked as with the zip below: open it
+once and click **Open Anyway** in **System Settings → Privacy & Security**.
+After that it updates itself, and `brew upgrade` leaves it alone. To remove
+it, `brew uninstall --cask supabase-switch`; add `--zap` to delete your
+accounts list and settings as well (the tokens stay in the Keychain).
+
 ### From a release
 
 Download `Supabase-Switch-<version>.zip` from
@@ -81,8 +95,8 @@ does not match, before unpacking anything. That signature, not an Apple
 notarization, is what proves an update comes from this repository. An update
 Sparkle installs is not quarantined, so **Open Anyway** is not needed again.
 
-A copy built from source does not update itself: pull and build again. A copy
-installed with Homebrew is left to `brew upgrade`.
+A copy installed with Homebrew updates the same way. A copy built from source
+does not update itself: pull and build again.
 
 ## First steps
 
