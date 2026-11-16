@@ -61,7 +61,8 @@ Instala la app en `/Applications` y enlaza `sbswitch`. Al nombrar el tap
 completo solo se confía en este cask, no en el resto del tap. La app **no está
 notarizada**, así que la primera vez macOS la bloquea igual que la del zip:
 ábrela una vez y pulsa **Abrir igualmente** en **Ajustes del Sistema →
-Privacidad y seguridad**. Después se actualiza sola, y `brew upgrade` no la
+Privacidad y seguridad**. Hazlo antes de usar `sbswitch`: hasta que la app se
+abre una vez, macOS también para la orden. Después se actualiza sola, y `brew upgrade` no la
 toca. Para quitarla, `brew uninstall --cask supabase-switch`; con `--zap` borra
 también tu lista de cuentas y tus ajustes (los tokens siguen en el Llavero).
 

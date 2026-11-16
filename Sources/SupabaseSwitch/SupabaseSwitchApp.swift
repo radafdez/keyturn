@@ -33,6 +33,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Sin icono en el Dock, también si se lanza fuera del bundle.
         NSApp.setActivationPolicy(.accessory)
         NSApp.mainMenu = Self.editMenu()
+        // A Homebrew copy you just approved: let its `sbswitch` run too.
+        // Una copia de Homebrew que acabas de aprobar: que su `sbswitch` también corra.
+        Quarantine.release(bundle: Bundle.main.bundleURL)
         if let folder = ProcessInfo.processInfo.environment["SUPABASE_SWITCH_SNAPSHOTS"] {
             Task { @MainActor in
                 await Snapshots.render(into: URL(fileURLWithPath: folder))

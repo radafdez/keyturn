@@ -18,6 +18,9 @@ All notable changes to this project are documented here. The format follows
 - Copies installed with Homebrew update themselves too, like the ones from the
   zip. `brew upgrade` leaves them alone, so macOS does not block the app again
   after every upgrade.
+- Once you have opened it, a copy installed with Homebrew lifts the quarantine
+  from its own files. Without that, macOS would stop `sbswitch` and the MCP
+  server without asking, even after you approved the app.
 
 ## [1.3.0] - 2026-11-16
 

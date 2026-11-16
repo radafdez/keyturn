@@ -66,7 +66,8 @@ That installs the app in `/Applications` and links `sbswitch`. Naming the
 tap in full trusts only this cask, not the rest of the tap. The app is **not
 notarized**, so the first launch is blocked as with the zip below: open it
 once and click **Open Anyway** in **System Settings → Privacy & Security**.
-After that it updates itself, and `brew upgrade` leaves it alone. To remove
+Do that before using `sbswitch`: until the app has run once, macOS stops the
+command too. After that it updates itself, and `brew upgrade` leaves it alone. To remove
 it, `brew uninstall --cask supabase-switch`; add `--zap` to delete your
 accounts list and settings as well (the tokens stay in the Keychain).
 
