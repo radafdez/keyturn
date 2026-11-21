@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-11-21
+
 ### Added
 - **Running CLIs**, a feature apart from the accounts: Keyturn watches which
   command-line tools run on this Mac — Supabase, Claude Code, Codex, Gemini,
