@@ -37,12 +37,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Sin icono en el Dock, también si se lanza fuera del bundle.
         NSApp.setActivationPolicy(.accessory)
         NSApp.mainMenu = Self.editMenu()
+        // Starts watching the CLIs with the app, not with the first window.
+        // Empieza a vigilar los CLIs con la app, no con la primera ventana.
+        _ = CLIWatch.shared
         if let folder = ProcessInfo.processInfo.environment["KEYTURN_SNAPSHOTS"] {
             Task { @MainActor in
                 await Snapshots.render(into: URL(fileURLWithPath: folder))
                 NSApp.terminate(nil)
             }
         }
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        CLIWatch.shared.flush()
     }
 
     /// An app without a menu bar of its own still needs an Edit menu: it is

@@ -26,12 +26,17 @@ da al CLI el que toca cuando haces clic.
 - **Actividad y estadísticas**: cada cambio con quién lo hizo (tú en el menú,
   una terminal o qué agente), y las cuentas por cuenta, por origen y por
   agente. Solo en tu Mac.
+- **CLIs en marcha**, una función aparte: qué herramientas de línea de órdenes
+  corren ahora en tu Mac (Supabase, Claude Code, Codex, Gemini, Vercel, GitHub,
+  Stripe, Firebase y más, y las órdenes que añadas), en qué app, y cuánto
+  corrió cada una hoy, esta semana o este mes. Solo mira; nunca las toca. Ver
+  [CLIs en marcha](#clis-en-marcha).
 - **Una orden suelta con otra cuenta** sin cambiar:
   `keyturn run globex -- supabase migration list`.
 - **Se entera de los logins hechos fuera**: un `supabase login` en una terminal
   aparece en el menú en 30 segundos como mucho.
-- **Ventana de ajustes** (⌘, desde el menú): cuentas, agentes, actividad,
-  estadísticas, idioma y «Acerca de».
+- **Ventana de ajustes** (⌘, desde el menú): cuentas, agentes, CLIs en
+  marcha, actividad, estadísticas, idioma y «Acerca de».
 - En inglés y en español, según el idioma del sistema o el que elijas.
 
 ## Requisitos
@@ -159,6 +164,32 @@ Qué pueden hacer los agentes y qué no:
   lee los datos de tus proyectos ni toca tu base de datos.
 
 <img src="docs/settings-activity-es.png" width="420" alt="Actividad: cada cambio con quién lo pidió">
+
+## CLIs en marcha
+
+Aparte de las cuentas, Keyturn te dice qué herramientas de línea de órdenes
+corren en tu Mac y durante cuánto tiempo. El menú las enseña con cuánto lleva
+cada una; **Ajustes → CLIs en marcha** añade el tiempo por herramienta hoy, en
+7 o en 30 días, y las últimas sesiones.
+
+<img src="docs/settings-clis-es.png" width="420" alt="CLIs en marcha: lo que corre ahora y el tiempo por herramienta">
+
+- Cada 5 segundos la app lee la tabla de procesos del kernel, como `ps`. No
+  ejecuta nada ni toca nada.
+- Una herramienta se reconoce por el nombre de su orden (`supabase`, `claude`,
+  `gh`…), y las que corren sobre `node` o `python` por su script o su paquete
+  de npm. **Vigilar también** añade tus propias órdenes.
+- Cada sesión dice en qué app corre (Terminal, iTerm, Cursor, Claude…) y qué
+  herramienta vigilada la lanzó: un `supabase db push` lanzado por Claude Code
+  lo dice. Las copias de una herramienta que corren a la vez cuentan una vez.
+- Las órdenes de menos de 5 segundos pueden no verse. Las llamadas del propio
+  Keyturn a `supabase` no cuentan.
+- Solo se guardan la herramienta, la app y las horas, en
+  `~/Library/Application Support/Keyturn/CLIs/activity.json`, durante 90
+  días. Nunca los argumentos, la carpeta ni la salida. Se apaga en el mismo
+  panel.
+- `keyturn clis` enseña desde una terminal lo que corre ahora y el tiempo de
+  hoy; `keyturn clis --json` da lo mismo a los scripts.
 
 ## `keyturn`
 

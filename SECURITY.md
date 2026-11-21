@@ -26,6 +26,10 @@ Only the latest release gets fixes.
 - The state file holds no secrets.
 - The app sends nothing anywhere: every request to Supabase is made by the
   Supabase CLI.
+- The CLI scanner (Settings → Running CLIs) only reads the process table. It
+  never runs, signals or attaches to another process, and it never writes a
+  command line, a folder or any output to disk: `CLIs/activity.json` holds
+  only the tool, the app, the process id and the times.
 
 A way to break any of these is a vulnerability.
 
@@ -37,3 +41,7 @@ A way to break any of these is a vulnerability.
 - `keyturn run` exposes the token to the command it runs, in
   `SUPABASE_ACCESS_TOKEN`.
 - Release builds are not notarized.
+- To tell which tool a `node` or `python` process runs, the scanner reads its
+  arguments in memory, the same ones `ps` shows to your user. A secret passed
+  as an argument to such a tool is readable this way by any process of your
+  user anyway; Keyturn discards the arguments after matching.

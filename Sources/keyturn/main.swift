@@ -17,6 +17,8 @@ let usage = tr(
                                         to its Supabase name
       keyturn remove <account>
       keyturn stats                    switches and runs per account
+      keyturn clis [--json]            the other CLIs running on this Mac now, and how
+                                        long each ran today (recorded by the app)
       keyturn run <account> -- <cmd>   run one command as that account without switching
       keyturn mcp                      MCP server for AI agents (Claude Code, Codex, Cursor…):
                                         claude mcp add --scope user keyturn -- keyturn mcp
@@ -40,6 +42,8 @@ let usage = tr(
                                         a su nombre de Supabase
       keyturn remove <cuenta>
       keyturn stats                    cambios y órdenes por cuenta
+      keyturn clis [--json]            los otros CLIs que corren ahora en este Mac, y cuánto
+                                        corrió cada uno hoy (lo registra la app)
       keyturn run <cuenta> -- <orden>  lanza una orden con esa cuenta sin cambiar el CLI
       keyturn mcp                      servidor MCP para agentes de IA (Claude Code, Codex, Cursor…):
                                         claude mcp add --scope user keyturn -- keyturn mcp
@@ -100,6 +104,58 @@ func printStats(_ usage: UsageSummary) {
     }
 }
 
+/// What runs now comes from a fresh look at the processes; how long each ran
+/// comes from what the app recorded. This command only reads that file: the
+/// app is the one that writes it.
+/// Lo que corre ahora sale de un vistazo nuevo a los procesos; cuánto corrió
+/// cada uno sale de lo que registró la app. Esta orden solo lee ese fichero:
+/// quien lo escribe es la app.
+func printCLIs(json: Bool) throws {
+    let monitor = CLIMonitor.live()
+    let now = Date()
+    let summary = monitor.summary(now: now)
+    let running = RunningCLI.group(monitor.detect(), title: summary.title(of:), now: now)
+
+    if json {
+        let formatter = ISO8601DateFormatter()
+        let list: [[String: Any]] = running.map {
+            ["tool": $0.tool, "title": $0.title, "copies": $0.copies, "since": formatter.string(from: $0.since),
+             "seconds": Int(now.timeIntervalSince($0.since)), "hosts": $0.hosts, "launchedBy": $0.via]
+        }
+        let data = try JSONSerialization.data(withJSONObject: ["running": list], options: [.prettyPrinted, .sortedKeys])
+        print(String(decoding: data, as: UTF8.self))
+        return
+    }
+
+    if running.isEmpty {
+        print(tr("None of the watched CLIs is running.", "No corre ninguno de los CLIs vigilados."))
+    } else {
+        print(tr("Running now:", "En marcha ahora:"))
+        let width = running.map { $0.title.count + ($0.copies > 1 ? " ×\($0.copies)".count : 0) }.max() ?? 0
+        for cli in running {
+            let name = (cli.title + (cli.copies > 1 ? " ×\(cli.copies)" : "")).padding(toLength: width, withPad: " ", startingAt: 0)
+            var line = "  ● \(name)  " + durationText(now.timeIntervalSince(cli.since))
+            if !cli.hosts.isEmpty { line += "  " + tr("in \(cli.hosts.joined(separator: ", "))", "en \(cli.hosts.joined(separator: ", "))") }
+            if !cli.via.isEmpty { line += " · " + tr("launched by \(cli.via.joined(separator: ", "))", "lanzado por \(cli.via.joined(separator: ", "))") }
+            print(line)
+        }
+    }
+
+    let today = summary.totals(since: Calendar.current.startOfDay(for: now))
+    guard !summary.sessions.isEmpty else {
+        print(tr("\nThe app records how long each one runs: Keyturn → Settings → Running CLIs.",
+                 "\nLa app registra cuánto corre cada uno: Keyturn → Ajustes → CLIs en marcha."))
+        return
+    }
+    guard !today.isEmpty else { return }
+    print(tr("\nToday:", "\nHoy:"))
+    let width = today.map(\.title.count).max() ?? 0
+    for total in today {
+        let count = total.sessions == 1 ? tr("1 session", "1 sesión") : tr("\(total.sessions) sessions", "\(total.sessions) sesiones")
+        print("  \(total.title.padding(toLength: width, withPad: " ", startingAt: 0))  \(durationText(total.active)) · \(count)")
+    }
+}
+
 /// A token typed by hand is read without echo; one piped in is read as is.
 /// It is never taken from the arguments, where any process could see it.
 /// Un token escrito a mano se lee sin eco; uno que llega por tubería, tal cual.
@@ -130,6 +186,11 @@ func main() throws {
         // Los agentes leen mejor en inglés; a partir de aquí stdout es del protocolo.
         AppLanguage.current = .english
         MCPServer(service: { try SwitchService.live() }).run()
+        return
+    }
+
+    if command == "clis" {
+        try printCLIs(json: arguments.contains("--json"))
         return
     }
 

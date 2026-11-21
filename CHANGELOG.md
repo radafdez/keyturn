@@ -6,6 +6,17 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+- **Running CLIs**, a feature apart from the accounts: Keyturn watches which
+  command-line tools run on this Mac — Supabase, Claude Code, Codex, Gemini,
+  Vercel, GitHub, Stripe, Firebase, Wrangler and more, plus commands you add —
+  and for how long. The menu lists what runs now; Settings → Running CLIs adds
+  the time per tool (today, 7 or 30 days) and the latest sessions, each with
+  the app it ran in and the tool that launched it. It reads the process table
+  every 5 seconds, never touches the tools, and keeps only the tool, the app
+  and the times, on this Mac. On by default; it turns off in the same pane.
+- `keyturn clis [--json]`: what runs now, and today's time per tool.
+
 ## [1.4.0] - 2026-11-16
 
 ### Changed
