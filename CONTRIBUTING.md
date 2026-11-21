@@ -20,7 +20,10 @@ open "dist/Keyturn.app"
 ```
 
 Tests must pass without touching the real Keychain or the real CLI: use the
-fakes in `Tests/SwitchCoreTests/Fakes.swift`. The one test that touches the
+fakes in `Tests/SwitchCoreTests/Fakes.swift`. Tests of the CLI scanner build
+their own process trees with `FakeProcesses` and `MemoryCLIStore` (in
+`Tests/SwitchCoreTests/CLIScanTests.swift`) and never read the real process
+table. The one test that touches the
 real Keychain (in its own service only) runs with `KEYTURN_LIVE_KEYCHAIN=1`.
 
 **Never test `supabase login` with a fake token on your machine**: it replaces
@@ -37,6 +40,10 @@ your real CLI login.
 - Secrets travel through stdin or the environment, never through arguments.
 - Old state files must keep opening: new fields are optional or decoded with a
   default.
+- To teach the scanner a new CLI, add it to `KnownCLI.catalog` in
+  `Sources/SwitchCore/CLIScan.swift` with its command names (and its npm
+  package if it runs on `node`), and add a case to `CLIDetectorTests`. Never
+  store what a tool was run with: only which tool, where and when.
 - Add a line to `CHANGELOG.md` under “Unreleased”.
 
 ## Pull requests

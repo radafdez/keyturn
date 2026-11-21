@@ -6,7 +6,7 @@
 
 [Español](README.es.md)
 
-<img src="docs/menu-light.png" width="340" alt="The menu with three accounts, one of them in use"> <img src="docs/settings-agents.png" width="420" alt="Settings: letting AI agents switch the account, and connecting Claude Code and Codex">
+<img src="docs/menu-light.png" width="340" alt="The menu with three accounts, one of them in use, and the CLIs running now"> <img src="docs/settings-agents.png" width="420" alt="Settings: letting AI agents switch the account, and connecting Claude Code and Codex">
 
 The `supabase` CLI keeps a single login. If your projects live in several
 Supabase accounts — one per client, personal and work, a shared org — every
@@ -252,6 +252,15 @@ pbpaste | keyturn add "Globex"
 - `supabase logout` wipes everything under the Keychain service “Supabase CLI”,
   so this app keeps its tokens under its own service, “Keyturn”, and
   they survive a logout.
+- **Watching the CLIs** reads the process table with `proc_listallpids`,
+  `proc_pidinfo` and `sysctl(KERN_PROCARGS2)` — no `ps`, no helper, no extra
+  permission. A process is matched by its executable name, the name it was
+  started with, or (for `node`, `python`, `bun`…) its script or npm package.
+  Children of a matched tool are folded into it, the nearest app above it is
+  its host, and a session is a process id plus its start time, so a reused
+  pid never extends an old session. The app saves the sessions when one starts
+  or ends, and once a minute while something runs; a tool still running after
+  the app restarts keeps its session.
 
 ```text
 Sources/SwitchCore       logic without UI: accounts, Keychain, CLI, usage, MCP server,
