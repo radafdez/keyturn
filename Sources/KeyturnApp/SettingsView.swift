@@ -16,7 +16,7 @@ struct SettingsView: View {
     }
 
     enum Pane: String, CaseIterable, Identifiable {
-        case general, accounts, agents, activity, statistics, about
+        case general, accounts, agents, clis, activity, statistics, about
         var id: String { rawValue }
 
         var title: String {
@@ -24,6 +24,7 @@ struct SettingsView: View {
             case .general: return tr("General", "General")
             case .accounts: return tr("Accounts", "Cuentas")
             case .agents: return tr("AI agents", "Agentes de IA")
+            case .clis: return tr("Running CLIs", "CLIs en marcha")
             case .activity: return tr("Activity", "Actividad")
             case .statistics: return tr("Statistics", "Estadísticas")
             case .about: return tr("About", "Acerca de")
@@ -35,6 +36,7 @@ struct SettingsView: View {
             case .general: return "gearshape"
             case .accounts: return "person.2"
             case .agents: return "sparkles"
+            case .clis: return "terminal"
             case .activity: return "clock.arrow.circlepath"
             case .statistics: return "chart.bar"
             case .about: return "info.circle"
@@ -56,6 +58,7 @@ struct SettingsView: View {
                 case .general: GeneralPane(model: model)
                 case .accounts: AccountsPane(model: model)
                 case .agents: AgentsPane(model: model)
+                case .clis: CLIsPane()
                 case .activity: ActivityPane(model: model)
                 case .statistics: StatisticsPane(model: model)
                 case .about: AboutPane()
@@ -119,8 +122,8 @@ private struct GeneralPane: View {
 
             Section(tr("In a terminal", "En una terminal")) {
                 CopyField(text: tr("keyturn use <project>", "keyturn use <proyecto>"))
-                markdown(tr("`keyturn` does the same switch from the shell: `status`, `list`, `use`, `run` and `mcp`.",
-                            "`keyturn` hace el mismo cambio desde el shell: `status`, `list`, `use`, `run` y `mcp`."))
+                markdown(tr("`keyturn` does the same switch from the shell: `status`, `list`, `use`, `run` and `mcp`. `keyturn clis` lists the CLIs running now.",
+                            "`keyturn` hace el mismo cambio desde el shell: `status`, `list`, `use`, `run` y `mcp`. `keyturn clis` lista los CLIs en marcha."))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

@@ -5,6 +5,7 @@ import SwitchCore
 struct MenuView: View {
     @ObservedObject var model: AppModel
     @ObservedObject var updater = Updater.shared
+    @ObservedObject var clis = CLIWatch.shared
     @Environment(\.openWindow) private var openWindow
 
     enum Panel { case none, adding, stats }
@@ -79,6 +80,11 @@ struct MenuView: View {
                 .padding(.vertical, 4)
             }
 
+            if clis.isOn {
+                Divider()
+                runningCLIs
+            }
+
             Divider()
             footer
         }
@@ -128,6 +134,30 @@ struct MenuView: View {
                 actionTitle: tr("Retry", "Reintentar")
             ) { model.checkAgain() }
         }
+    }
+
+    /// The other CLIs running on this Mac, apart from the accounts above.
+    /// Los otros CLIs que corren en este Mac, aparte de las cuentas de arriba.
+    private var runningCLIs: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(tr("Running CLIs", "CLIs en marcha"))
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+            if clis.summary.running.isEmpty {
+                Text(tr("None right now", "Ninguno ahora mismo"))
+                    .font(.callout)
+                    .foregroundStyle(.tertiary)
+            } else {
+                ForEach(clis.summary.running.prefix(6)) { RunningCLIRow(cli: $0, compact: true).font(.callout) }
+                if clis.summary.running.count > 6 {
+                    Text(tr("and \(clis.summary.running.count - 6) more", "y \(clis.summary.running.count - 6) más"))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
     }
 
     private var footer: some View {

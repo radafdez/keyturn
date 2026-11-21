@@ -26,12 +26,17 @@ hands the right one to the CLI when you click.
 - **Activity and statistics**: every switch with who made it (you in the
   menu, a terminal, or which agent), and counts per account, per source and
   per agent. Kept on your Mac only.
+- **Running CLIs**, a feature of its own: which command-line tools are running
+  on your Mac right now (Supabase, Claude Code, Codex, Gemini, Vercel, GitHub,
+  Stripe, Firebase and more, plus any command you add), in which app, and how
+  long each one ran today, this week or this month. It only watches; it never
+  touches them. See [Running CLIs](#running-clis).
 - **One-off commands as another account** without switching:
   `keyturn run globex -- supabase migration list`.
 - **Notices logins made elsewhere**: a `supabase login` typed in a terminal
   shows up in the menu within 30 seconds.
-- **Settings window** (⌘, from the menu): accounts, agents, activity,
-  statistics, language and about.
+- **Settings window** (⌘, from the menu): accounts, agents, running CLIs,
+  activity, statistics, language and about.
 - **Updates itself**: new versions install with one click, and only if they
   carry the project's signature. See [Updates](#updates).
 - English and Spanish, following the system language or your choice.
@@ -180,6 +185,31 @@ What agents can and cannot do:
 
 <img src="docs/settings-activity.png" width="420" alt="Activity: each switch with who asked for it"> <img src="docs/settings-about.png" width="420" alt="About: version, updates, links and license">
 
+## Running CLIs
+
+Apart from the accounts, Keyturn can tell you which command-line tools are
+running on your Mac and for how long. The menu lists them with how long each
+has been running; **Settings → Running CLIs** adds the time per tool today, in
+7 or 30 days, and the latest sessions.
+
+<img src="docs/settings-clis.png" width="420" alt="Running CLIs: what runs now, and the time per tool">
+
+- Every 5 seconds the app reads the process table from the kernel, the way
+  `ps` does. Nothing is run and nothing is touched.
+- A tool is known by its command name (`supabase`, `claude`, `gh`…), and the
+  ones that run on `node` or `python` by their script or npm package. **Also
+  watch** adds your own commands.
+- Each session says the app it runs in (Terminal, iTerm, Cursor, Claude…) and
+  the watched tool that launched it — a `supabase db push` run by Claude Code
+  says so. Copies of a tool running at once count once in the totals.
+- Commands shorter than 5 seconds may not be seen. Keyturn's own calls to
+  `supabase` are left out.
+- Only the tool, the app and the times are kept, in
+  `~/Library/Application Support/Keyturn/CLIs/activity.json`, for 90 days.
+  Never the arguments, the folder or the output. Turn it off in the same pane.
+- `keyturn clis` shows what runs now from a terminal, and today's totals;
+  `keyturn clis --json` gives the same to scripts.
+
 ## `keyturn`
 
 ```text
@@ -193,6 +223,7 @@ keyturn rename <account> <new name>
 keyturn alias <project> [alias]  give a project a local name (none = back to Supabase's)
 keyturn remove <account>
 keyturn stats                    switches and runs per account
+keyturn clis [--json]            the other CLIs running now, and today's time per tool
 keyturn run <account> -- <cmd>   run one command as that account without switching
 keyturn mcp                      MCP server over stdio, for AI agents
 keyturn version
@@ -223,7 +254,8 @@ pbpaste | keyturn add "Globex"
   they survive a logout.
 
 ```text
-Sources/SwitchCore       logic without UI: accounts, Keychain, CLI, usage, MCP server
+Sources/SwitchCore       logic without UI: accounts, Keychain, CLI, usage, MCP server,
+                         and the CLI scanner (CLIScan.swift, CLIActivity.swift)
 Sources/KeyturnApp   the menu bar app (SwiftUI)
 Sources/keyturn         the same logic from a terminal
 Tests/SwitchCoreTests    tests with a fake Keychain and a fake CLI
@@ -237,6 +269,10 @@ Tests/SwitchCoreTests    tests with a fake Keychain and a fake CLI
 - `~/Library/Application Support/Keyturn/accounts.json` holds account
   names, project refs, regions, your aliases and the usage history (account,
   kind and time — never the command). Nothing secret. Mode `0600`.
+- `~/Library/Application Support/Keyturn/CLIs/activity.json` holds the
+  sessions of the watched CLIs: tool, app, process id and times. The scanner
+  reads the arguments of `node` and `python` processes to tell which tool they
+  run, and keeps none of them.
 - **No telemetry.** Nothing leaves your Mac except what the Supabase CLI itself
   sends to Supabase. Checking for updates (only if you allow it, or press the
   button) asks GitHub for `appcast.xml`, the list of versions; it sends no

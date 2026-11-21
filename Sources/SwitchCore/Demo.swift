@@ -112,3 +112,63 @@ private final class DemoCLI: SupabaseCLI, @unchecked Sendable {
         return remote
     }
 }
+
+// MARK: - CLIs
+
+public extension Demo {
+    /// Made-up tools running and a week of made-up history, for the CLIs pane.
+    /// Herramientas inventadas corriendo y una semana de historial inventado,
+    /// para el panel de CLIs.
+    static func cliMonitor(now: Date = Date()) -> CLIMonitor {
+        let now = now.rounded
+        func ago(_ minutes: Double) -> Date { now.addingTimeInterval(-minutes * 60) }
+        let terminal = "/System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal"
+        let cursor = "/Applications/Cursor.app/Contents/MacOS/Cursor"
+        let processes = DemoProcesses(list: [
+            RunningProcess(pid: 400, parent: 1, started: ago(600), path: terminal),
+            RunningProcess(pid: 401, parent: 400, started: ago(300), path: "/usr/bin/login", isMine: false),
+            RunningProcess(pid: 402, parent: 401, started: ago(300), path: "/bin/zsh", arguments: ["-zsh"]),
+            RunningProcess(pid: 403, parent: 402, started: ago(72), path: "/Users/demo/.local/share/claude/versions/2.1.0", arguments: ["claude"]),
+            RunningProcess(pid: 404, parent: 403, started: ago(3), path: "/opt/homebrew/bin/supabase", arguments: ["supabase", "db", "push"]),
+            RunningProcess(pid: 500, parent: 1, started: ago(900), path: cursor),
+            RunningProcess(pid: 501, parent: 500, started: ago(500), path: "/bin/zsh", arguments: ["-zsh"]),
+            RunningProcess(pid: 502, parent: 501, started: ago(25), path: "/opt/homebrew/bin/node",
+                           arguments: ["node", "/opt/homebrew/lib/node_modules/vercel/dist/index.js", "dev"]),
+            RunningProcess(pid: 503, parent: 501, started: ago(41), path: "/opt/homebrew/bin/stripe", arguments: ["stripe", "listen"]),
+        ])
+
+        func session(_ tool: String, from start: Double, minutes: Double, _ host: String, via: String? = nil) -> CLISession {
+            CLISession(tool: tool, pid: Int32.random(in: 1000...9000), started: ago(start), lastSeen: ago(start - minutes),
+                       ended: ago(start - minutes), host: host, via: via)
+        }
+        let history = CLIActivity(sessions: [
+            session("claude", from: 6 * 1440, minutes: 160, "Terminal"),
+            session("supabase", from: 6 * 1440 - 30, minutes: 4, "Terminal", via: "claude"),
+            session("codex", from: 5 * 1440, minutes: 95, "Cursor"),
+            session("gh", from: 4 * 1440, minutes: 2, "Terminal"),
+            session("claude", from: 3 * 1440, minutes: 210, "Claude"),
+            session("vercel", from: 2 * 1440, minutes: 48, "Cursor"),
+            session("supabase", from: 1440 + 120, minutes: 35, "Terminal"),
+            session("claude", from: 1440, minutes: 130, "Terminal"),
+            session("gemini", from: 400, minutes: 22, "iTerm"),
+            session("codex", from: 300, minutes: 64, "Cursor"),
+            session("supabase", from: 160, minutes: 12, "Terminal", via: "codex"),
+            session("gh", from: 120, minutes: 1, "Terminal"),
+        ])
+        let monitor = CLIMonitor(source: processes, store: DemoCLIStore(activity: history), ownPID: 1)
+        monitor.scan(now: now)
+        return monitor
+    }
+}
+
+private struct DemoProcesses: ProcessSource {
+    let list: [RunningProcess]
+    func processes() -> [RunningProcess] { list }
+}
+
+private final class DemoCLIStore: CLIActivityStore, @unchecked Sendable {
+    var activity: CLIActivity
+    init(activity: CLIActivity) { self.activity = activity }
+    func load() throws -> CLIActivity { activity }
+    func save(_ activity: CLIActivity) throws { self.activity = activity }
+}
