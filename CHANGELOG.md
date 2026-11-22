@@ -6,6 +6,8 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-11-22
+
 ### Fixed
 - A new login made with `supabase login`, of an account not registered yet,
   could be thrown away by an agent's `use_project` before you captured it.
