@@ -47,7 +47,24 @@ public enum Demo {
             event(globex, .switched, hoursAgo: 0.2, .agent("claude-code")),
         ]
         _ = initech
+        loginOutsideTheApp(Self.loginScenario, service: service, keychain: secrets)
         return service
+    }
+
+    /// `KEYTURN_DEMO_LOGIN=pending` leaves the CLI on an account not registered
+    /// yet; `lost` replaces that login before it is captured. To see the warnings.
+    /// `KEYTURN_DEMO_LOGIN=pending` deja el CLI en una cuenta aún sin registrar;
+    /// `lost` sustituye esa sesión antes de capturarla. Para ver los avisos.
+    static var loginScenario: String? { ProcessInfo.processInfo.environment["KEYTURN_DEMO_LOGIN"] }
+
+    private static func loginOutsideTheApp(_ scenario: String?, service: SwitchService, keychain: DemoKeychain) {
+        guard scenario == "pending" || scenario == "lost" else { return }
+        try! keychain.write(DemoCLI.umbrella, to: .supabaseCLI)
+        _ = try! service.snapshot()
+        if scenario == "lost" {
+            try! keychain.write(DemoCLI.acme, to: .supabaseCLI)
+            _ = try! service.snapshot()
+        }
     }
 }
 
@@ -85,6 +102,8 @@ private final class DemoCLI: SupabaseCLI, @unchecked Sendable {
     static let acme = "sbp_" + String(repeating: "1", count: 40)
     static let globex = "sbp_" + String(repeating: "2", count: 40)
     static let initech = "sbp_" + String(repeating: "3", count: 40)
+    /// Never registered: the login made in a terminal. / Nunca registrada: la sesión hecha en una terminal.
+    static let umbrella = "sbp_" + String(repeating: "4", count: 40)
 
     private let keychain: DemoKeychain
     private let remotes: [String: (Organization, [Project])] = [
@@ -97,6 +116,9 @@ private final class DemoCLI: SupabaseCLI, @unchecked Sendable {
         ]),
         initech: (Organization(id: "org-initech", name: "Initech"), [
             Project(ref: "zpxwnrqtkvmhbldcyeau", name: "initech-api", region: "us-west-1"),
+        ]),
+        umbrella: (Organization(id: "org-umbrella", name: "Umbrella"), [
+            Project(ref: "rbvqnxkzpwtlmhcdyaef", name: "umbrella-labs", region: "eu-central-1"),
         ]),
     ]
 

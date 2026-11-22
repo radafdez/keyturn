@@ -439,8 +439,8 @@ final class AppModel: ObservableObject {
         defaults.set(lost.date, forKey: Key.lostAnnounced)
         notify(
             title: tr("Log in to “\(lost.name)” again", "Vuelve a iniciar sesión en «\(lost.name)»"),
-            body: tr("Its new login was replaced before it was captured. Run `supabase login` with that account and press Capture in Keyturn.",
-                     "Su sesión nueva se sustituyó antes de capturarla. Haz `supabase login` con esa cuenta y pulsa Capturar en Keyturn.")
+            body: tr("Its new login was replaced before it was captured. Run “supabase login” with that account and press Capture in Keyturn.",
+                     "Su sesión nueva se sustituyó antes de capturarla. Haz «supabase login» con esa cuenta y pulsa Capturar en Keyturn.")
         )
     }
 

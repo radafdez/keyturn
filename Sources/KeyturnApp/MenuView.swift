@@ -23,8 +23,8 @@ struct MenuView: View {
             }
             if let lost = model.lostLogin {
                 Banner(
-                    text: tr("The new login of “\(lost.name)” was replaced before it was captured. Log in with it again (`supabase login`) and press Capture.",
-                             "La sesión nueva de «\(lost.name)» se sustituyó antes de capturarla. Vuelve a iniciarla (`supabase login`) y pulsa Capturar."),
+                    text: tr("The new login of “\(lost.name)” was replaced before it was captured. Log in with it again (“supabase login”) and press Capture.",
+                             "La sesión nueva de «\(lost.name)» se sustituyó antes de capturarla. Vuelve a iniciarla («supabase login») y pulsa Capturar."),
                     tint: .red
                 ) { model.forgetLostLogin() }
             }
