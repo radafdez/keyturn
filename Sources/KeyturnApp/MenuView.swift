@@ -21,6 +21,13 @@ struct MenuView: View {
             if let problem = model.problem {
                 Banner(text: problem, tint: .red) { model.problem = nil }
             }
+            if let lost = model.lostLogin {
+                Banner(
+                    text: tr("The new login of “\(lost.name)” was replaced before it was captured. Log in with it again (“supabase login”) and press Capture.",
+                             "La sesión nueva de «\(lost.name)» se sustituyó antes de capturarla. Vuelve a iniciarla («supabase login») y pulsa Capturar."),
+                    tint: .red
+                ) { model.forgetLostLogin() }
+            }
             sessionNotice
             if let version = updater.waiting {
                 Button { updater.checkForUpdates() } label: {
@@ -121,8 +128,8 @@ struct MenuView: View {
                    tint: .secondary)
         case .unregistered:
             Banner(
-                text: tr("The CLI is logged in as an account not registered here.",
-                         "El CLI está en una cuenta que no está registrada aquí."),
+                text: tr("The CLI is logged in as an account not registered here. Capture it so it is not lost: until then no agent can switch over it.",
+                         "El CLI está en una cuenta que no está registrada aquí. Captúrala para no perderla: hasta entonces ningún agente puede cambiar por encima."),
                 tint: .orange,
                 actionTitle: tr("Capture", "Capturar")
             ) { model.captureCurrent() }

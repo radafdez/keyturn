@@ -55,15 +55,19 @@ public final class SwitchService: @unchecked Sendable {
             accounts: state.accounts,
             session: session,
             usage: UsageSummary(accounts: state.accounts, events: state.history, now: now()),
-            agentsCanSwitch: state.agentsCanSwitch
+            agentsCanSwitch: state.agentsCanSwitch,
+            lostLogin: state.lostLogin
         )
     }
 
     private func resolveSession(_ state: inout SwitchState) throws -> SessionStatus {
         guard let stamp = secrets.modificationStamp(.supabaseCLI) else {
-            if state.activeAccountID != nil || state.sessionStamp != nil {
+            // A logout is on purpose: a login waiting to be captured is not lost, it was let go.
+            // Un logout es a propósito: la sesión que esperaba captura no se pierde, se suelta.
+            if state.activeAccountID != nil || state.sessionStamp != nil || state.pendingLogin != nil {
                 state.activeAccountID = nil
                 state.sessionStamp = nil
+                state.pendingLogin = nil
                 try store.save(state)
             }
             return .none
@@ -88,10 +92,41 @@ public final class SwitchService: @unchecked Sendable {
         }
 
         let match = Self.account(in: state.accounts, owning: organizations.map(\.id))
+        notePendingLogin(&state, stamp: stamp, organizations: organizations, registered: match != nil)
         state.activeAccountID = match?.id
         state.sessionStamp = stamp
         try store.save(state)
         return match.map { .account($0.id) } ?? .unregistered
+    }
+
+    /// Keeps track of the login that is waiting to be captured. When another
+    /// login takes its place before anyone captured it, it is written down as
+    /// lost, so the user can be told to log in with it again.
+    ///
+    /// Sigue la pista de la sesión que espera a ser capturada. Si otra sesión
+    /// ocupa su sitio antes de que nadie la capture, se apunta como perdida,
+    /// para poder decirle al usuario que vuelva a iniciarla.
+    private func notePendingLogin(_ state: inout SwitchState, stamp: String, organizations: [Organization], registered: Bool) {
+        let ids = organizations.map(\.id).sorted()
+        if let previous = state.pendingLogin, previous.stamp != stamp,
+           Set(previous.organizationIDs) != Set(ids),
+           Self.account(in: state.accounts, owning: previous.organizationIDs) == nil {
+            state.lostLogin = LostLogin(name: previous.name, organizationIDs: previous.organizationIDs, date: wholeSecond())
+        }
+        // An account in no organization cannot be captured, so there is nothing to keep.
+        // Una cuenta sin organización no se puede capturar, así que no hay nada que guardar.
+        state.pendingLogin = registered || ids.isEmpty
+            ? nil
+            : PendingLogin(stamp: stamp, organizationIDs: ids, name: organizations[0].name)
+    }
+
+    /// Whether the CLI is on a login that would be lost by switching now.
+    /// Si el CLI está en una sesión que se perdería al cambiar ahora.
+    private func unsavedLogin(_ state: inout SwitchState) throws -> PendingLogin? {
+        guard try resolveSession(&state) == .unregistered,
+              let pending = state.pendingLogin, pending.stamp == state.sessionStamp
+        else { return nil }
+        return pending
     }
 
     // MARK: Registering accounts
@@ -103,17 +138,33 @@ public final class SwitchService: @unchecked Sendable {
     @discardableResult
     public func captureCurrent(name: String? = nil) throws -> Account {
         try locked {
-            guard let stamp = secrets.modificationStamp(.supabaseCLI),
-                  let token = try secrets.read(.supabaseCLI)
-            else { throw SwitchError.noCLISession }
-            guard AccessToken.isValid(token) else { throw SwitchError.invalidToken }
-
             var state = try store.load()
-            let account = try register(token: token, name: name, queryWith: nil, in: &state)
-            state.activeAccountID = account.id
-            state.sessionStamp = stamp
+            return try capture(name: name, into: &state)
+        }
+    }
+
+    @discardableResult
+    private func capture(name: String?, into state: inout SwitchState) throws -> Account {
+        guard let stamp = secrets.modificationStamp(.supabaseCLI),
+              let token = try secrets.read(.supabaseCLI)
+        else { throw SwitchError.noCLISession }
+        guard AccessToken.isValid(token) else { throw SwitchError.invalidToken }
+
+        let account = try register(token: token, name: name, queryWith: nil, in: &state)
+        state.activeAccountID = account.id
+        state.sessionStamp = stamp
+        try store.save(state)
+        return account
+    }
+
+    /// The user has read the warning about a lost login.
+    /// El usuario ya leyó el aviso de la sesión perdida.
+    public func forgetLostLogin() throws {
+        try locked {
+            var state = try store.load()
+            guard state.lostLogin != nil else { return }
+            state.lostLogin = nil
             try store.save(state)
-            return account
         }
     }
 
@@ -150,6 +201,11 @@ public final class SwitchService: @unchecked Sendable {
         var projects = try cli.projects(token: queryToken)
         let ids = organizations.map(\.id).sorted()
         let wanted = name?.trimmingCharacters(in: .whitespaces)
+
+        // Registered now, so neither waiting nor lost any more.
+        // Ya registrada: ni espera captura ni está perdida.
+        if let pending = state.pendingLogin, Set(pending.organizationIDs) == Set(ids) { state.pendingLogin = nil }
+        if let lost = state.lostLogin, Set(lost.organizationIDs) == Set(ids) { state.lostLogin = nil }
 
         // Same organizations = same account: its token is replaced, not duplicated.
         // Mismas organizaciones = misma cuenta: se le cambia el token, no se duplica.
@@ -189,6 +245,13 @@ public final class SwitchService: @unchecked Sendable {
     /// El token se prueba antes por separado, para que uno revocado no sustituya
     /// a una sesión que funciona. Tras el login se le pregunta al CLI quién es:
     /// un login que no entró nunca se da por hecho.
+    ///
+    /// A login of an account not registered yet is never thrown away: from the
+    /// menu it is captured first (the user is there to answer macOS), and an
+    /// agent or a terminal gets an error asking for the capture.
+    /// Una sesión de una cuenta aún sin registrar nunca se tira: desde el menú
+    /// se captura antes (el usuario está ahí para contestar a macOS), y un
+    /// agente o una terminal reciben un error que pide capturarla.
     @discardableResult
     public func activate(_ id: UUID, origin: Origin = .menu) throws -> Snapshot {
         try locked {
@@ -196,6 +259,15 @@ public final class SwitchService: @unchecked Sendable {
             guard let account = state.accounts.first(where: { $0.id == id }) else { throw SwitchError.unknownAccount }
             if origin.source == .agent, !state.agentsCanSwitch { throw SwitchError.agentsNotAllowed }
             guard let token = try secrets.read(.stored(id)) else { throw SwitchError.missingToken(account.name) }
+
+            if let pending = try unsavedLogin(&state) {
+                guard origin.source == .menu else { throw SwitchError.unregisteredLogin(pending.name) }
+                do {
+                    try capture(name: nil, into: &state)
+                } catch {
+                    throw SwitchError.couldNotKeepLogin(pending.name, (error as? LocalizedError)?.errorDescription ?? error.localizedDescription)
+                }
+            }
 
             let owned = try cli.organizations(token: token).map(\.id)
             guard Set(owned) == Set(account.organizationIDs) else {

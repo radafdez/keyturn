@@ -75,6 +75,14 @@ func describe(_ session: SessionStatus, in accounts: [Account]) -> String {
     }
 }
 
+/// A login lost before its capture, said where the user is looking.
+/// Una sesión perdida antes de capturarla, dicho donde el usuario está mirando.
+func warnAboutLostLogin(_ snapshot: Snapshot) {
+    guard let lost = snapshot.lostLogin else { return }
+    print(tr("! The new login of “\(lost.name)” was replaced before it was captured. Log in with it again (`supabase login`) and run `keyturn capture`.",
+             "! La sesión nueva de «\(lost.name)» se sustituyó antes de capturarla. Vuelve a iniciarla (`supabase login`) y haz `keyturn capture`."))
+}
+
 func printAccount(_ account: Account, active: Bool) {
     print("\(active ? "●" : "○") \(account.name)\(active ? tr("  (in use)", "  (en uso)") : "")")
     for project in account.projects {
@@ -211,10 +219,12 @@ func main() throws {
             printAccount(item, active: snapshot.activeAccount?.id == item.id)
         }
         if snapshot.activeAccount == nil { print(describe(snapshot.session, in: snapshot.accounts)) }
+        warnAboutLostLogin(snapshot)
 
     case "current":
         let snapshot = try service.snapshot(askingTheCLIAgain: true)
         print(describe(snapshot.session, in: snapshot.accounts))
+        warnAboutLostLogin(snapshot)
 
     case "use":
         let target = try account(arguments.first)

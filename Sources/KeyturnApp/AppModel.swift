@@ -22,6 +22,9 @@ final class AppModel: ObservableObject {
     @Published private(set) var language: LanguageChoice
     @Published private(set) var notifiesAgentSwitches: Bool
     @Published private(set) var agents: [String: AgentStatus] = [:]
+    /// A login replaced before it was captured: the user has to log in again.
+    /// Una sesión sustituida antes de capturarla: hay que volver a iniciarla.
+    @Published private(set) var lostLogin: LostLogin?
 
     enum LanguageChoice: String, CaseIterable, Identifiable {
         case system, english, spanish
@@ -65,6 +68,7 @@ final class AppModel: ObservableObject {
     private enum Key {
         static let language = "language"
         static let notifies = "notifiesAgentSwitches"
+        static let lostAnnounced = "lostLoginAnnounced"
     }
 
     private var service: SwitchService?
@@ -75,6 +79,9 @@ final class AppModel: ObservableObject {
     /// The newest event already seen, so only what is new gets announced.
     /// El evento más nuevo ya visto, para anunciar solo lo nuevo.
     private var newestSeen: Date?
+    /// Whether the last look already found a login waiting to be captured.
+    /// Si la última mirada ya encontró una sesión esperando captura.
+    private var sawUnregistered = false
 
     init() {
         let defaults = UserDefaults.standard
@@ -148,7 +155,20 @@ final class AppModel: ObservableObject {
 
     func activate(_ id: UUID) {
         let name = accounts.first { $0.id == id }?.name ?? ""
-        perform(tr("Switching to \(name)…", "Cambiando a \(name)…")) { try $0.activate(id, origin: .menu) }
+        // The service saves a login not registered yet before switching, and
+        // reading it makes macOS ask.
+        // El servicio guarda antes de cambiar la sesión aún sin registrar, y
+        // leerla hace que macOS pregunte.
+        let label = session == .unregistered
+            ? tr("Saving the new login first: allow it in the macOS dialog…",
+                 "Guardando antes la sesión nueva: autorízalo en el aviso de macOS…")
+            : tr("Switching to \(name)…", "Cambiando a \(name)…")
+        perform(label) { try $0.activate(id, origin: .menu) }
+    }
+
+    func forgetLostLogin() {
+        lostLogin = nil
+        perform(nil) { try $0.forgetLostLogin() }
     }
 
     func captureCurrent() {
@@ -332,7 +352,9 @@ final class AppModel: ObservableObject {
         session = snapshot.session
         usage = snapshot.usage
         agentsCanSwitch = snapshot.agentsCanSwitch
+        lostLogin = snapshot.lostLogin
         announceAgentSwitches(in: snapshot.usage.recent)
+        announceLogins(snapshot)
     }
 
     private func loadService() throws -> SwitchService {
@@ -390,6 +412,36 @@ final class AppModel: ObservableObject {
                 body: tr("Now on “\(accountName(event.accountID))”.", "Ahora en «\(accountName(event.accountID))».")
             )
         }
+    }
+
+    /// The banner in the menu goes away when the session changes, and the menu
+    /// may be closed: a login that needs capturing, or one already lost, also
+    /// gets a notification, which stays in the Notification Center.
+    ///
+    /// El aviso del menú se va cuando cambia la sesión, y el menú puede estar
+    /// cerrado: una sesión que hay que capturar, o una ya perdida, recibe
+    /// además una notificación, que se queda en el Centro de notificaciones.
+    private func announceLogins(_ snapshot: Snapshot) {
+        let unregistered = snapshot.session == .unregistered
+        if unregistered, !sawUnregistered {
+            notify(
+                title: tr("New Supabase login to capture", "Sesión nueva de Supabase por capturar"),
+                body: tr("The CLI is on an account Keyturn doesn't have yet. Open Keyturn and press Capture. Until then no agent can switch over it.",
+                         "El CLI está en una cuenta que Keyturn aún no tiene. Abre Keyturn y pulsa Capturar. Hasta entonces ningún agente puede cambiar por encima.")
+            )
+        }
+        sawUnregistered = unregistered
+
+        guard let lost = snapshot.lostLogin else { return }
+        let defaults = UserDefaults.standard
+        let announced = defaults.object(forKey: Key.lostAnnounced) as? Date
+        guard announced == nil || lost.date > announced! else { return }
+        defaults.set(lost.date, forKey: Key.lostAnnounced)
+        notify(
+            title: tr("Log in to “\(lost.name)” again", "Vuelve a iniciar sesión en «\(lost.name)»"),
+            body: tr("Its new login was replaced before it was captured. Run “supabase login” with that account and press Capture in Keyturn.",
+                     "Su sesión nueva se sustituyó antes de capturarla. Haz «supabase login» con esa cuenta y pulsa Capturar en Keyturn.")
+        )
     }
 
     private func askToNotify() {
