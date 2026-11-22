@@ -20,9 +20,12 @@ final class FakeKeychain: SecretStore, @unchecked Sendable {
     var values: [KeychainSlot: String] = [:]
     var stamps: [KeychainSlot: Int] = [:]
     var reads: [KeychainSlot] = []
+    /// Slots whose macOS dialog the user denies. / Entradas cuyo aviso de macOS se deniega.
+    var denied: Set<KeychainSlot> = []
 
     func read(_ slot: KeychainSlot) throws -> String? {
         reads.append(slot)
+        if denied.contains(slot) { throw SwitchError.keychain("denied") }
         return values[slot].map(KeyringCodec.decode)
     }
 

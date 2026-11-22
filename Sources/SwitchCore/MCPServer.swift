@@ -170,10 +170,15 @@ public final class MCPServer {
                 return Self.result(Self.describe(snapshot), structured: Self.structure(snapshot))
             case "current_account":
                 let snapshot = try service.snapshot(askingTheCLIAgain: true)
-                return Self.result(Self.sessionSentence(snapshot), structured: [
+                var text = Self.sessionSentence(snapshot)
+                if let lost = snapshot.lostLogin {
+                    text += " Tell the user: the new login of “\(lost.name)” was replaced before it was captured, so they have to log in with it again (`supabase login`) and capture it in Keyturn."
+                }
+                return Self.result(text, structured: [
                     "account": snapshot.activeAccount?.name ?? NSNull(),
                     "status": Self.statusName(snapshot.session),
                     "agentsCanSwitch": snapshot.agentsCanSwitch,
+                    "lostLogin": snapshot.lostLogin?.name ?? NSNull(),
                 ])
             case "use_project":
                 let query = try Self.argument("project", in: arguments)
@@ -273,7 +278,7 @@ public final class MCPServer {
         switch snapshot.session {
         case .none: return "The Supabase CLI has no stored login."
         case .account: return "The Supabase CLI is logged in as “\(snapshot.activeAccount?.name ?? "?")”."
-        case .unregistered: return "The Supabase CLI is logged in as an account that is not registered in Keyturn."
+        case .unregistered: return "The Supabase CLI is logged in as an account that is not registered in Keyturn. Switching is blocked until the user captures it (Keyturn menu → Capture), so that login is not lost."
         case .unverified(let detail): return "The Supabase CLI has a login, but it could not say whose: \(detail)"
         }
     }

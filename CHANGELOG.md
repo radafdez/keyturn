@@ -6,6 +6,21 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- A new login made with `supabase login`, of an account not registered yet,
+  could be thrown away by an agent's `use_project` before you captured it.
+  Keyturn now never switches over such a login: agents and `keyturn use` get
+  an error asking you to capture it first, and choosing an account in the menu
+  captures it before switching. If nothing can be saved, nothing changes.
+
+### Added
+- A notification when the CLI is on a login waiting to be captured, so the
+  warning no longer lives only in the menu.
+- If a login waiting to be captured is replaced anyway (say, another
+  `supabase login` in a terminal), Keyturn says so: a notification, a banner in
+  the menu, a line in `keyturn list` / `keyturn current`, and a note in the
+  agents' `current_account`, telling you to log in with it again and capture it.
+
 ## [1.5.0] - 2026-11-21
 
 ### Added

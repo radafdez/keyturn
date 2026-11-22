@@ -63,13 +63,26 @@ public struct SwitchState: Codable, Equatable, Sendable {
     /// Whether `keyturn mcp` may change the CLI's login. Reading is always allowed.
     /// Si `keyturn mcp` puede cambiar la sesión del CLI. Consultar siempre se puede.
     public var agentsCanSwitch: Bool
+    /// The login the CLI has now, of an account not registered yet. Keyturn
+    /// never switches over it without saving it first.
+    /// La sesión que tiene ahora el CLI, de una cuenta aún sin registrar.
+    /// Keyturn nunca cambia por encima de ella sin guardarla antes.
+    public var pendingLogin: PendingLogin?
+    /// A login that was replaced before anyone captured it: the user has to
+    /// log in with it again.
+    /// Una sesión que se sustituyó antes de que nadie la capturara: hay que
+    /// volver a iniciarla.
+    public var lostLogin: LostLogin?
 
-    public init(accounts: [Account] = [], activeAccountID: UUID? = nil, sessionStamp: String? = nil, history: [UsageEvent] = [], agentsCanSwitch: Bool = true) {
+    public init(accounts: [Account] = [], activeAccountID: UUID? = nil, sessionStamp: String? = nil, history: [UsageEvent] = [],
+                agentsCanSwitch: Bool = true, pendingLogin: PendingLogin? = nil, lostLogin: LostLogin? = nil) {
         self.accounts = accounts
         self.activeAccountID = activeAccountID
         self.sessionStamp = sessionStamp
         self.history = history
         self.agentsCanSwitch = agentsCanSwitch
+        self.pendingLogin = pendingLogin
+        self.lostLogin = lostLogin
     }
 
     // A file written by 1.0 has no history: it must still open.
@@ -81,11 +94,42 @@ public struct SwitchState: Codable, Equatable, Sendable {
         sessionStamp = try container.decodeIfPresent(String.self, forKey: .sessionStamp)
         history = try container.decodeIfPresent([UsageEvent].self, forKey: .history) ?? []
         agentsCanSwitch = try container.decodeIfPresent(Bool.self, forKey: .agentsCanSwitch) ?? true
+        pendingLogin = try container.decodeIfPresent(PendingLogin.self, forKey: .pendingLogin)
+        lostLogin = try container.decodeIfPresent(LostLogin.self, forKey: .lostLogin)
     }
 
     mutating func record(_ kind: UsageEvent.Kind, for id: UUID, at date: Date, origin: Origin) {
         history.append(UsageEvent(accountID: id, kind: kind, date: date, source: origin.source, client: origin.client))
         if history.count > UsageEvent.limit { history.removeFirst(history.count - UsageEvent.limit) }
+    }
+}
+
+/// A login of an account Keyturn does not know, as the CLI described it.
+/// Una sesión de una cuenta que Keyturn no conoce, tal como la describió el CLI.
+public struct PendingLogin: Codable, Equatable, Sendable {
+    /// The CLI's Keychain stamp when it was seen. / El sello del Llavero del CLI cuando se vio.
+    public var stamp: String
+    public var organizationIDs: [String]
+    /// Its first organization's name: what a capture would call it.
+    /// El nombre de su primera organización: como la llamaría una captura.
+    public var name: String
+
+    public init(stamp: String, organizationIDs: [String], name: String) {
+        self.stamp = stamp
+        self.organizationIDs = organizationIDs
+        self.name = name
+    }
+}
+
+public struct LostLogin: Codable, Equatable, Sendable {
+    public var name: String
+    public var organizationIDs: [String]
+    public var date: Date
+
+    public init(name: String, organizationIDs: [String], date: Date) {
+        self.name = name
+        self.organizationIDs = organizationIDs
+        self.date = date
     }
 }
 
@@ -106,12 +150,17 @@ public struct Snapshot: Equatable, Sendable {
     public var session: SessionStatus
     public var usage: UsageSummary
     public var agentsCanSwitch: Bool
+    /// Nil unless a login was replaced before it was captured.
+    /// Nil salvo que una sesión se sustituyera antes de capturarla.
+    public var lostLogin: LostLogin?
 
-    public init(accounts: [Account], session: SessionStatus, usage: UsageSummary? = nil, agentsCanSwitch: Bool = true) {
+    public init(accounts: [Account], session: SessionStatus, usage: UsageSummary? = nil, agentsCanSwitch: Bool = true,
+                lostLogin: LostLogin? = nil) {
         self.accounts = accounts
         self.session = session
         self.usage = usage ?? UsageSummary(accounts: accounts, events: [], now: Date())
         self.agentsCanSwitch = agentsCanSwitch
+        self.lostLogin = lostLogin
     }
 
     public var activeAccount: Account? {
@@ -142,6 +191,12 @@ public enum SwitchError: LocalizedError, Equatable {
     case noMatch(String)
     case ambiguous(String, [String])
     case agentsNotAllowed
+    /// Switching now would throw away a login that is not registered yet.
+    /// Cambiar ahora tiraría una sesión que aún no está registrada.
+    case unregisteredLogin(String)
+    /// The login could not be saved before switching, so nothing changed.
+    /// No se pudo guardar la sesión antes de cambiar, así que no cambió nada.
+    case couldNotKeepLogin(String, String)
 
     public var errorDescription: String? {
         switch self {
@@ -179,6 +234,12 @@ public enum SwitchError: LocalizedError, Equatable {
         case .agentsNotAllowed:
             return tr("Agents may not switch accounts: that is turned off in Keyturn → Settings → Agents. Ask the user to switch, or to turn it on.",
                       "Los agentes no pueden cambiar de cuenta: está desactivado en Keyturn → Ajustes → Agentes. Pide al usuario que cambie, o que lo active.")
+        case .unregisteredLogin(let name):
+            return tr("The Supabase CLI is logged in as “\(name)”, an account not registered in Keyturn yet. Switching now would throw that login away, so nothing was changed. Ask the user to capture it first (Keyturn menu → Capture, or `keyturn capture`), then try again. If that login is not needed, `supabase logout` lets the switch go ahead.",
+                      "El CLI de Supabase está en «\(name)», una cuenta que aún no está registrada en Keyturn. Cambiar ahora tiraría esa sesión, así que no se cambió nada. Pide al usuario que la capture primero (menú de Keyturn → Capturar, o `keyturn capture`) y vuelve a intentarlo. Si esa sesión no hace falta, `supabase logout` deja hacer el cambio.")
+        case .couldNotKeepLogin(let name, let detail):
+            return tr("Before switching I tried to save the login of “\(name)”, which is not registered yet, and could not: \(detail). Nothing was changed, so the login is still there. Press Capture to try again.",
+                      "Antes de cambiar intenté guardar la sesión de «\(name)», que aún no está registrada, y no pude: \(detail). No se cambió nada, así que la sesión sigue ahí. Pulsa Capturar para reintentarlo.")
         }
     }
 }
